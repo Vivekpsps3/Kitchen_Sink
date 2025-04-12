@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import os
 from google import genai
-from google.genai import types
 from dotenv import load_dotenv
 from typing import Dict, Any, List
 import json

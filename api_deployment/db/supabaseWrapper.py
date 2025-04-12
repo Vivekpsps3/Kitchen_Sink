@@ -1,36 +1,13 @@
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from pydantic import BaseModel
-from typing import Optional, Union, List, Dict, Any
+from db.pydanticTypes import Product, Recipe
 
 load_dotenv()
 
 url: str = os.environ.get("SUPABASE_PROJECT_URL")
 key: str = os.environ.get("SUPABASE_PROJECT_API")
 supabase: Client = create_client(url, key)
-
-# Define a Product model based on scrapingInterface.json
-class Product(BaseModel):
-    provider: str
-    itemName: str
-    category: str
-    brand: str
-    price: float
-    unitAmountOz: float
-
-# Define a Recipe model based on your Supabase table
-class Recipe(BaseModel):
-    title: str
-    cuisine: Optional[str] = None
-    tags: Optional[Union[List[str], str]] = None
-    ingredients: Optional[List[Dict[str, Any]]] = None
-    steps: Optional[Union[List[str], str]] = None
-    prep_time_minutes: Optional[int] = None
-    cook_time_minutes: Optional[int] = None
-    servings: Optional[int] = None
-    difficulty: Optional[str] = None
-    notes: Optional[str] = None
 
 def get_products():
     response = supabase.table("products").select("*").execute()
@@ -62,25 +39,32 @@ def create_recipe(recipe: Recipe):
     response = supabase.table("recipes").select("*").eq("title", recipe.title).execute()
     
     if response.data:
-        return "Recipe with this title already exists"
+        return {"error": "Recipe with this title already exists"}
     
-    recipe_data = recipe.model_dump()
+    try:
+        recipe_data = recipe.model_dump()
+    except:
+        return {"error": "Wrong recipe format!"}
     
     if isinstance(recipe_data.get('tags'), str):
         try:
             import json
             recipe_data['tags'] = json.loads(recipe_data['tags'])
         except:
-            pass
+            return {"error": "Error dumping tags"}
             
     if isinstance(recipe_data.get('steps'), str):
         try:
             import json
             recipe_data['steps'] = json.loads(recipe_data['steps'])
         except:
-            pass
-    response = supabase.table("recipes").insert(recipe_data).execute()
-    return response.data
+            return {"error": "Error dumping steps"}
+        
+    try:
+        response = supabase.table("recipes").insert(recipe_data).execute()
+        return response.data
+    except:
+        return {"error": "Error inserting recipe"}
 
 if __name__ == "__main__":
     product = Product(
