@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from db.pydanticTypes import Recipe
 import db.supabaseWrapper as supabaseWrapper
+from scrapers import getProducts
 
 app = FastAPI(title="Recipe Generation API", 
               description="API for generating recipes based on user queries")
@@ -146,6 +147,20 @@ async def recipes():
     """
     recipes = supabaseWrapper.get_recipes()
     return recipes
+
+class ProductQuery(BaseModel):
+    product_name: str
+    zip_code: str
+
+@app.post("/scrapeIngredients")
+async def scrapeIngredients(product_query: ProductQuery):
+    """
+    Scrape product information based on product name and zip code.
+    
+    Accepts a JSON body with product_name and zip_code fields.
+    """
+    products = getProducts(product_query.product_name, product_query.zip_code)
+    return products
 
 @app.get("/health")
 async def health_check():
