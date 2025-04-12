@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import scrapingInterface.json as a string 
-with open('scrapingInterface.json', 'r') as f:
+with open('scrapers/scrapingInterface.json', 'r') as f:
     json_format = f.read()
 
-def queryGemini(prompt, model="gemini-2.0-flash-lite", returnAsJson=False):
+def queryGemini(prompt, model="gemini-2.0-flash", returnAsJson=False):
     api_key = os.getenv("GEMINI_API_KEY")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     

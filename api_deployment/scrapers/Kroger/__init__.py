@@ -154,6 +154,7 @@ def refineKrogerProducts(products):
             "size": size_info,
             "categories": product.get('categories', []),
         }
+        refined_product["provider"] = "Kroger"
         
         refined_products.append(refined_product)
     

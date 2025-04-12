@@ -31,7 +31,12 @@ def refineProduct(product, query):
 def refineProducts(products, query):
     refined_products = []
     for product in products:
-        refined_products.append(refineProduct(product, query))
+        refined_product = refineProduct(product, query)
+        refined_product["provider"] = product["provider"]
+        # If there is no brand, set it to the provider
+        if not refined_product["brand"]:
+            refined_product["brand"] = refined_product["provider"]
+        refined_products.append(refined_product)
     return refined_products
 
 def getProducts(product_name, zip_code):
@@ -43,6 +48,7 @@ def getProducts(product_name, zip_code):
     # Get the products that match the relevant product names
     relevantProducts = [product for product in rawTargetProducts if product['title'] in relevantProductNames]
     refinedTargetProducts = refineProducts(relevantProducts, product_name)
+
 
     # Get products from Kroger
     krogerToken = getKrogerProductToken()

@@ -63,6 +63,7 @@ def getTargetProducts(keyword, zip_code):
         
         refined_product["bullet_descriptions"] = bullet_descriptions
         refined_product["soft_bullets"] = soft_bullets
+        refined_product["provider"] = "Target"
         
         cleaned_products.append(refined_product)
 
