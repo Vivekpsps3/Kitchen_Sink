@@ -22,3 +22,4 @@ class Recipe(BaseModel):
     servings: Optional[int] = None
     difficulty: Optional[str] = None
     notes: Optional[str] = None
+    featured: Optional[bool] = False

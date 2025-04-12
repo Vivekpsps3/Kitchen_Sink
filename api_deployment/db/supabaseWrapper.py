@@ -79,6 +79,10 @@ def create_recipe(recipe: Recipe):
     except:
         return {"error": "Error inserting recipe"}
 
+def get_featured_recipes():
+    response = supabase.table("recipes").select("*").eq("featured", True).execute()
+    return response.data
+
 if __name__ == "__main__":
     product = Product(
         provider="Target",

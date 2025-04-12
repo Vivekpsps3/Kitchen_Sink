@@ -187,6 +187,17 @@ async def recipes(
     
     return recipes_result
 
+@app.get("/featuredRecipes")
+async def featuredRecipes():
+    """
+    Get the featured recipes for today.
+    """
+    recipes = supabaseWrapper.get_featured_recipes()
+    if "error" in recipes:
+        raise HTTPException(status_code=500, detail={"error": recipes["error"]})
+    else:
+        return recipes
+
 class ProductQuery(BaseModel):
     product_name: str
     zip_code: str
