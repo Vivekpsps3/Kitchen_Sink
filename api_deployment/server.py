@@ -117,6 +117,23 @@ async def generate_recipe(recipe_query: RecipeQuery):
         # Let the global handler catch this
         raise
 
+class IngredientsList(BaseModel):
+    ingredients: list[str]
+
+@app.post("/generate-shopping-list")
+async def generate_shopping_list(ingredients_list: IngredientsList):
+    """
+    Generate a shopping list based on the provided ingredients list.
+    
+    Returns a JSON object containing the organized shopping list.
+    """
+    try:
+        shopping_list = recipe_provider.generate_shopping_list_from_ingredients(ingredients_list.ingredients)
+        return shopping_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"error": str(e)})
+    
+
 @app.post("/recipe")
 async def recipe(recipe: Recipe):
     """
@@ -168,4 +185,4 @@ async def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    uvicorn.run("recipe_api_server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)

@@ -92,6 +92,79 @@ class RecipeProvider:
             raise ValueError(f"Error decoding JSON: {response}")
         return recipe_json
     
+    def generate_shopping_list(self, recipe: Dict[str, Any]) -> List[str]:
+        """Generate a shopping list from the recipe JSON."""
+        ingredients = recipe.get("ingredients", [])
+        shopping_list = []
+        
+        for ingredient in ingredients:
+            # Extract the ingredient name and quantity
+            if isinstance(ingredient, str):
+                shopping_list.append(ingredient)
+            elif isinstance(ingredient, dict):
+                name = ingredient.get("name", "")
+                quantity = ingredient.get("quantity", "")
+                if name and quantity:
+                    shopping_list.append(f"{quantity} of {name}")
+        
+        return shopping_list
+
+    def generate_shopping_list_from_ingredients(self, ingredients: List[str]) -> Dict[str, Any]:
+        """
+        Generate an organized shopping list from a list of ingredients using Gemini.
+        
+        Args:
+            ingredients: List of ingredient strings (e.g., "2 cups butter", "1 cup milk")
+            
+        Returns:
+            Dict containing the organized shopping list
+        """
+        # Create prompt for Gemini
+        ingredients_text = "\n".join(ingredients)
+        prompt = f"""
+        I need to create a shopping list based on these ingredients from a recipe:
+        
+        {ingredients_text}
+        
+        Please organize these ingredients into a shopping list that:
+        1. Combines similar ingredients (e.g., if multiple items need milk, show the total amount)
+        2. Groups ingredients by category (produce, dairy, grains, etc.)
+        3. Adds helpful notes for potentially confusing items
+        4. Ensures quantities are clear and consistent
+        5. Includes both the ingredient name and total amount needed
+        6. Ingredient quantities must be given in a clear format (e.g., "2 cups", "1 lb", etc.)
+        7. Use Common shopping list formats (e.g., "1 lb of chicken", "1 bag of flour(At least 5 lbs)")
+        
+        Format the response as a valid JSON object matching this structure:
+        """
+        # Read the shopping list template
+        with open('shopping_list.json', 'r') as f:
+            template = f.read()
+        prompt += template
+        
+        # Generate the shopping list using Gemini
+        response = self.client.models.generate_content(
+            model="gemini-2.5-pro",
+            contents=prompt
+        )
+        response_text = response.text.strip()
+        
+        # Clean up the response if needed
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
+        
+        # Parse the response to JSON
+        try:
+            shopping_list_json = json.loads(response_text)
+        except json.JSONDecodeError:
+            # If we can't parse the JSON, return a formatted error
+            raise ValueError(f"Error generating shopping list: Invalid JSON response")
+            
+        return shopping_list_json
+
     def generate_recipe_for_query(self, query: str) -> Dict[str, Any]:
         """Generate a recipe for the given query using the scraper for context."""
         try:

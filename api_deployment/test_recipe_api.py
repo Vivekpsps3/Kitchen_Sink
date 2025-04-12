@@ -122,18 +122,151 @@ def test_health_endpoint():
         print(f"Health check failed: {str(e)}")
         return False
 
+def test_shopping_list():
+    """
+    Test the shopping list generation API by sending a request with sample ingredients.
+    
+    Returns:
+        bool: True if the test passed, False otherwise
+    """
+    # API endpoint
+    url = "http://localhost:8000/generate-shopping-list"
+    
+    # Sample ingredient list
+    # Load ingredients from the response JSON file
+    try:
+        with open("response.json", "r") as f:
+            response_data = json.load(f)
+        
+        # Extract ingredients from all sections
+        sample_ingredients = []
+        ingredient_sections = response_data.get("content", {}).get("recipe", {}).get("ingredient_sections", [])
+        
+        for section in ingredient_sections:
+            for ingredient in section.get("ingredients", []):
+                # Format ingredient string similar to original sample
+                amount = ingredient.get("amount", "")
+                unit = ingredient.get("unit", "")
+                name = ingredient.get("name", "")
+                notes = ingredient.get("notes", "")
+                
+                # Format the ingredient string
+                ingredient_str = f"{amount} {unit} {name}"
+                if notes:
+                    ingredient_str += f", {notes}"
+                
+                sample_ingredients.append(ingredient_str.strip())
+        
+        # If no ingredients found, use default list
+        if not sample_ingredients:
+            sample_ingredients = [
+                "2 cups all-purpose flour",
+                "1 cup unsalted butter, softened",
+                "1 cup granulated sugar",
+                "2 large eggs",
+                "1 teaspoon vanilla extract",
+                "1/2 teaspoon baking powder",
+                "1/4 teaspoon salt",
+                "1/2 cup milk"
+            ]
+            print("No ingredients found in response.json, using default ingredients")
+        else:
+            print(f"Loaded {len(sample_ingredients)} ingredients from response.json")
+    
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        # Use default ingredients if response.json doesn't exist or can't be parsed
+        sample_ingredients = [
+            "2 cups all-purpose flour",
+            "1 cup unsalted butter, softened",
+            "1 cup granulated sugar",
+            "2 large eggs",
+            "1 teaspoon vanilla extract",
+            "1/2 teaspoon baking powder",
+            "1/4 teaspoon salt",
+            "1/2 cup milk"
+        ]
+        print(f"Error loading response.json: {e}, using default ingredients")
+    
+    # Prepare the request payload
+    payload = {"ingredients": sample_ingredients}
+    headers = {"Content-Type": "application/json"}
+    
+    print("Testing shopping list API with sample ingredients")
+    
+    try:
+        # Send POST request to the API
+        response = requests.post(url, json=payload, headers=headers)
+        
+        # Check if request was successful
+        response.raise_for_status()
+        
+        # Get the response data
+        response_data = response.json()
+        
+        # Validate the response structure
+        if not isinstance(response_data, dict):
+            print("Error: Response is not a valid JSON object")
+            return False
+            
+        # Check for the shopping_list field in the response
+        if "shopping_list" not in response_data:
+            print("Error: Response missing required field 'shopping_list'")
+            return False
+        
+        # Check that shopping_list is a list
+        if not isinstance(response_data["shopping_list"], list):
+            print("Error: shopping_list is not a list")
+            return False
+            
+        # Print success message with response data
+        print("Test passed! API returned valid shopping list:")
+        
+        # Print a few items from the shopping list
+        for i, item in enumerate(response_data["shopping_list"][:3]):
+            if isinstance(item, dict):
+                print(f"Item {i+1}: {item.get('ingredient', 'Unknown')} - {item.get('quantity', 'Unknown')}")
+            else:
+                print(f"Item {i+1}: {item}")
+                
+        print(f"Total items: {len(response_data['shopping_list'])}")
+        
+        # Save it as a JSON file
+        with open("generated_shopping_list.json", "w") as f:
+            json.dump(response_data, f, indent=4)
+        print("Generated shopping list saved to 'generated_shopping_list.json'")
+
+        return True
+        
+    except requests.exceptions.ConnectionError:
+        print("Error: Could not connect to the API. Make sure the server is running.")
+        return False
+    except requests.exceptions.HTTPError as e:
+        print(f"Error: HTTP request failed with status code {response.status_code}")
+        print(f"Response: {response.text}")
+        return False
+    except json.JSONDecodeError:
+        print("Error: Response is not valid JSON")
+        print(f"Raw response: {response.text}")
+        return False
+    except Exception as e:
+        print(f"Error: Unexpected exception: {str(e)}")
+        return False
+
 if __name__ == "__main__":
     # Get query from command line arguments if provided
-    query = sys.argv[1] if len(sys.argv) > 1 else "Chinese food and Indian food"
+    query = sys.argv[1] if len(sys.argv) > 1 else "Vegetarian food for indian and italian lovers"
     
     # Test health endpoint first
     health_status = test_health_endpoint()
     
     if not health_status:
-        print("Warning: Health check failed, but continuing with recipe test...")
+        print("Warning: Health check failed, but continuing with tests...")
     
     # Test the recipe generation endpoint
-    test_result = test_recipe_api(query)
+    recipe_test_result = test_recipe_api(query)
+    
+    # Test the shopping list endpoint
+    shopping_list_test_result = test_shopping_list()
     
     # Exit with appropriate status code
-    sys.exit(0 if test_result and health_status else 1)
+    sys.exit(0 if recipe_test_result and health_status and shopping_list_test_result else 1)

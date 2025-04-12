@@ -1,0 +1,9 @@
+{
+  "shopping_list": [
+    {
+      "ingredient": "string",
+      "quantity": "string",
+      "category": "string"
+    }
+  ]
+}
