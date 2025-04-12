@@ -1,16 +1,17 @@
 import os
 import requests
 import json
+import time
 from dotenv import load_dotenv
 
 # Import ../../.env
 load_dotenv()
 
 # Import scrapingInterface.json as a string 
-with open('scrapers/scrapingInterface.json', 'r') as f:
+with open('scrapingInterface.json', 'r') as f:
     json_format = f.read()
 
-def queryGemini(prompt, model="gemini-2.0-flash", returnAsJson=False):
+def queryGemini(prompt, model="gemini-2.0-flash-lite", returnAsJson=False):
     api_key = os.getenv("GEMINI_API_KEY")
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     
@@ -30,6 +31,12 @@ def queryGemini(prompt, model="gemini-2.0-flash", returnAsJson=False):
     response = requests.post(url, headers=headers, data=json.dumps(data))
     response_json = response.json()
     
+    # If there is an error in the response, wait 1 second and try again
+    if "error" in response_json:
+        print(f"Error in response: {response_json['error']['message']}")
+        time.sleep(1)
+        return queryGemini(prompt, model, returnAsJson)
+
     # Extract the text from the response
     try:
         if returnAsJson:
