@@ -182,7 +182,7 @@ export default function SearchPage() {
 
         {/* Categories */}
         <div className="mb-10 overflow-x-auto pb-4">
-          <div className="flex space-x-4 min-w-max px-2">
+          <div className="flex space-x-4 px-4 min-w-max mx-auto md:justify-center">
             {categories.map((category) => (
               <button
                 key={category.id}
@@ -200,7 +200,7 @@ export default function SearchPage() {
                 >
                   {category.icon}
                 </div>
-                <span className="font-matina text-sm">{category.name}</span>
+                <span className="font-matina text-sm whitespace-nowrap">{category.name}</span>
               </button>
             ))}
           </div>
