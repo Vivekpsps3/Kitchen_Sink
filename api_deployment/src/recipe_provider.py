@@ -12,7 +12,7 @@ class RecipeProvider:
     def __init__(self):
         self.api_key = self._load_api_key()
         self.client = self._initialize_client()
-        self.scraper = RecipeScraper(num_results=3)  # Get 3 recipes for better context
+        self.scraper = RecipeScraper(num_results=5)  # Get 3 recipes for better context
 
     def _load_api_key(self) -> str:
         """Load and return the API key from environment variables."""
@@ -25,6 +25,24 @@ class RecipeProvider:
     def _initialize_client(self) -> genai.Client:
         """Initialize and return a genai client."""
         return genai.Client(api_key=self.api_key)
+
+    def _generate_search_query(self, query: str) -> str:
+        """Given a query, use an LLM to generate a search query that will yield better results."""
+        prompt = f"""
+        Given the recipe query "{query}, pick one specific dish that is most likely to yield the best results.
+        The dish should be a specific recipe name, not a general category.
+        For example, instead of "pasta", use "spaghetti carbonara recipe".
+        The output should be a single string, no explanations or extra text.
+        """
+        response = self.client.models.generate_content(
+            model="gemini-2.0-flash-lite",
+            contents=prompt
+        )
+        return response.text.strip()
+        # For debugging
+        with open('search_query.txt', 'w') as f:
+            f.write(response.text.strip())
+
 
     def _create_prompt(self, query: str, scraped_recipes_text: str) -> str:
         """Create a prompt for Gemini based on the scraped recipes."""
@@ -78,8 +96,12 @@ class RecipeProvider:
     def generate_recipe_for_query(self, query: str) -> Dict[str, Any]:
         """Generate a recipe for the given query using the scraper for context."""
         try:
+            # Generate a more specific search query
+            search_query = self._generate_search_query(query)
+            print(f"Generated search query: {search_query}")
+
             # Use the recipe scraper to get detailed recipe information
-            scraped_recipes_text = self.scraper.get_recipe(query)
+            scraped_recipes_text = self.scraper.get_recipe(search_query)
             
             # If no recipes found, return a basic message
             if not scraped_recipes_text or "Failed to extract" in scraped_recipes_text:
@@ -105,7 +127,7 @@ class RecipeProvider:
 def main() -> None:
     # Test the recipe provider
     query = "chicken curry"
-    provider = RecipeProvider()
+    provider = RecipeProvider()   
     recipe = provider.generate_recipe_for_query(query)
     print(json.dumps(recipe, indent=2))
 

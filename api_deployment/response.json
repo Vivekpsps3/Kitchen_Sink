@@ -2,93 +2,214 @@
   "title": "Recipe Request",
   "content": {
     "recipe": {
-      "title": "Simmered Sludge: A Poison Berry and Lawn Frog Stew",
-      "cuisine": "Swamp Punk",
+      "title": "Indo-Chinese Fusion: Szechuan Chicken Tikka Masala",
+      "cuisine": "Fusion (Indian & Chinese)",
       "tags": [
-        "Unique",
-        "Unusual Ingredients",
-        "Stew",
-        "Gamey",
-        "Caution: May be mildly poisonous"
+        "Chicken",
+        "Spicy",
+        "Fusion",
+        "Indian",
+        "Chinese"
       ],
-      "ingredients": [
+      "ingredient_sections": [
         {
-          "name": "Lawn Frog",
-          "amount": "2",
-          "unit": "small",
-          "notes": "Skin removed, eviscerated. Ensure the frog is a common lawn frog species and not a protected amphibian."
+          "section_name": "For the Chicken Marinade",
+          "ingredients": [
+            {
+              "name": "Boneless, skinless chicken thighs",
+              "amount": "1.5",
+              "unit": "lbs",
+              "notes": "Cut into 1-inch cubes"
+            },
+            {
+              "name": "Plain yogurt",
+              "amount": "1/2",
+              "unit": "cup",
+              "notes": "Full fat or Greek"
+            },
+            {
+              "name": "Ginger-garlic paste",
+              "amount": "2",
+              "unit": "tablespoons",
+              "notes": null
+            },
+            {
+              "name": "Garam masala",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Turmeric powder",
+              "amount": "1/4",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Coriander powder",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Cumin powder",
+              "amount": "1/2",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Kashmiri red chili powder",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": "Adjust to taste"
+            },
+            {
+              "name": "Salt",
+              "amount": "1/2",
+              "unit": "teaspoon",
+              "notes": "Or to taste"
+            },
+            {
+              "name": "Lemon juice",
+              "amount": "1",
+              "unit": "tablespoon",
+              "notes": null
+            }
+          ]
         },
         {
-          "name": "Poison Berries",
-          "amount": "1",
-          "unit": "cup",
-          "notes": "Use a *carefully identified* batch of dark, ripe poison berries. *Extreme caution is advised; ensure you know what you're picking! Only use berries that are traditionally considered edible locally.*"
-        },
-        {
-          "name": "Water",
-          "amount": "6",
-          "unit": "cups",
-          "notes": "Filtered or spring water preferred."
-        },
-        {
-          "name": "Wild Mushrooms",
-          "amount": "1",
-          "unit": "cup",
-          "notes": "Foraged from a damp forest floor. Carefully identified, of course."
-        },
-        {
-          "name": "Rough-Chopped Carrots",
-          "amount": "2",
-          "unit": "medium",
-          "notes": "Provides a touch of sweetness to offset the bitterness."
-        },
-        {
-          "name": "Onion",
-          "amount": "1",
-          "unit": "medium",
-          "notes": "Coarsely chopped."
-        },
-        {
-          "name": "Turnips",
-          "amount": "2",
-          "unit": "small",
-          "notes": "Peeled and cubed."
-        },
-        {
-          "name": "Old Bay Seasoning",
-          "amount": "2",
-          "unit": "tablespoons",
-          "notes": "For a touch of familiar flavor."
-        },
-        {
-          "name": "Salt",
-          "amount": "1",
-          "unit": "teaspoon",
-          "notes": "Or to taste."
-        },
-        {
-          "name": "Black Pepper",
-          "amount": "1/2",
-          "unit": "teaspoon",
-          "notes": "Freshly ground."
+          "section_name": "For the Szechuan Tikka Masala Sauce",
+          "ingredients": [
+            {
+              "name": "Vegetable oil",
+              "amount": "3",
+              "unit": "tablespoons",
+              "notes": null
+            },
+            {
+              "name": "Onion",
+              "amount": "1",
+              "unit": null,
+              "notes": "Finely chopped"
+            },
+            {
+              "name": "Ginger-garlic paste",
+              "amount": "1",
+              "unit": "tablespoon",
+              "notes": null
+            },
+            {
+              "name": "Green chilies",
+              "amount": "1-2",
+              "unit": null,
+              "notes": "Finely chopped, adjust to taste"
+            },
+            {
+              "name": "Szechuan peppercorns",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": "Lightly crushed"
+            },
+            {
+              "name": "Dried red chilies",
+              "amount": "4-5",
+              "unit": null,
+              "notes": "Cut into pieces"
+            },
+            {
+              "name": "Tomato passata (tomato puree)",
+              "amount": "1 2/3",
+              "unit": "cups",
+              "notes": null
+            },
+            {
+              "name": "Water",
+              "amount": "1 2/3",
+              "unit": "cups",
+              "notes": null
+            },
+            {
+              "name": "Soy sauce",
+              "amount": "1",
+              "unit": "tablespoon",
+              "notes": null
+            },
+            {
+              "name": "Sugar",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": "Or to taste"
+            },
+            {
+              "name": "Heavy cream",
+              "amount": "1/2",
+              "unit": "cup",
+              "notes": null
+            },
+            {
+              "name": "Butter",
+              "amount": "2",
+              "unit": "tablespoons",
+              "notes": "Unsalted"
+            },
+             {
+              "name": "Garam masala",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Coriander powder",
+              "amount": "1",
+              "unit": "teaspoon",
+              "notes": null
+            },
+             {
+              "name": "Cumin powder",
+              "amount": "1/2",
+              "unit": "teaspoon",
+              "notes": null
+            },
+            {
+              "name": "Salt",
+              "amount": "to taste",
+              "unit": null,
+              "notes": null
+            },
+            {
+              "name": "Kasuri methi (dried fenugreek leaves)",
+              "amount": "1",
+              "unit": "tablespoon",
+              "notes": "Crushed"
+            },
+            {
+              "name": "Cilantro",
+              "amount": "3",
+              "unit": "tablespoons",
+              "notes": "Freshly chopped, for garnish"
+            }
+          ]
         }
       ],
-      "ingredient_sections": [],
       "steps": [
-        "1. Prepare the Lawn Frogs: Thoroughly clean the frogs under cold water. Ensure all internal organs are removed. Pat dry.",
-        "2. Brown the Frogs: In a large pot or Dutch oven, lightly brown the frogs over medium-high heat. This adds depth of flavor. Remove the frogs and set aside.",
-        "3. Sauté Vegetables: Add the onions and carrots to the pot and sauté until softened, about 5 minutes. Add the turnips and cook for another 3 minutes.",
-        "4. Introduce Flavor: Add the Old Bay seasoning, salt, and pepper. Stir to coat the vegetables.",
-        "5. Simmer the Stew: Pour in the water and bring to a boil. Reduce heat and add the frogs, poison berries, and wild mushrooms.",
-        "6. Simmer Further: Cover the pot and simmer for at least 60 minutes, or until the frog meat is tender and falling off the bone. (Note: the longer simmering time helps mellow the berries and cook them thoroughly)",
-        "7. Adjust Seasoning: Taste and adjust seasoning as needed. Add more salt, pepper, or Old Bay to your preference.",
-        "8. Serve: Ladle into bowls and serve hot. Be cautious when consuming, particularly if unfamiliar with the edibility of your poison berries."
+        "In a bowl, combine all the marinade ingredients with the chicken cubes. Mix well, cover, and refrigerate for at least 3 hours, or preferably overnight.",
+        "Preheat oven to 450°F (232°C). Place the marinated chicken on skewers or spread on a baking sheet.",
+        "Bake for 15-20 minutes, or until the chicken is cooked through and slightly charred. Alternatively, you can grill the chicken on a skillet or air fry at 400F (200C) for 12-15 minutes, flipping halfway through.",
+        "While the chicken is baking, prepare the sauce. Heat oil in a large skillet or pot over medium heat. Add chopped onion and cook until golden brown, about 5-7 minutes.",
+        "Add ginger-garlic paste and green chilies. Sauté for 1 minute until fragrant.",
+        "Add crushed Szechuan peppercorns and dried red chilies. Sauté for another minute.",
+        "Stir in tomato passata, water, soy sauce, sugar, garam masala, coriander powder, and cumin powder. Bring to a simmer, then reduce heat to low, cover, and cook for 15 minutes, stirring occasionally.",
+        "Remove from heat and blend the sauce using an immersion blender until smooth. Return the sauce to the skillet.",
+        "Stir in heavy cream and butter. Cook for a few more minutes until the butter is melted and the sauce is creamy.",
+        "Add salt to taste, and then carefully stir in the baked chicken tikka. Simmer for 2-3 minutes, allowing the chicken to absorb the sauce.",
+        "Stir in the crushed kasuri methi.",
+        "Garnish with fresh cilantro. Serve hot with basmati rice or naan."
       ],
-      "prep_time_minutes": 30,
-      "cook_time_minutes": 60,
+      "prep_time_minutes": 20,
+      "cook_time_minutes": 45,
       "servings": 4,
       "difficulty": "Medium",
-      "notes": "This recipe is experimental and involves potentially poisonous ingredients. Exercise extreme caution and only use ingredients you can positively identify as safe for consumption. Proceed at your own risk. Best served with a side of skepticism."
+      "notes": "Adjust the amount of Szechuan peppercorns and dried chilies according to your spice preference. Marinating the chicken overnight will result in more flavorful and tender chicken.  For a richer sauce, use ghee instead of vegetable oil."
     }
   }
 }
