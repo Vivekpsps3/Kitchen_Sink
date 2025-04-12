@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Heart, Coffee, Utensils, Cake, Salad, Clock, Carrot, Beef, Fish } from "lucide-react"
+import { Heart, Coffee, Utensils, Cake, Salad, Clock, Carrot, Beef, Fish, Sandwich } from "lucide-react"
 import RecipeCard from "@/components/recipe-card"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
@@ -29,7 +29,7 @@ export default function SearchPage() {
   const categories: Category[] = [
     { id: "liked", name: "Liked Recipes", icon: <Heart className="h-6 w-6" /> },
     { id: "breakfast", name: "Breakfast", icon: <Coffee className="h-6 w-6" /> },
-    { id: "lunch", name: "Lunch", icon: <Utensils className="h-6 w-6" /> },
+    { id: "lunch", name: "Lunch", icon: <Sandwich className="h-6 w-6" /> },
     { id: "dinner", name: "Dinner", icon: <Utensils className="h-6 w-6" /> },
     { id: "dessert", name: "Dessert", icon: <Cake className="h-6 w-6" /> },
     { id: "vegetarian", name: "Vegetarian", icon: <Salad className="h-6 w-6" /> },
