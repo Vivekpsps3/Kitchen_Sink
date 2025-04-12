@@ -1,7 +1,7 @@
 import os
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from db.pydanticTypes import Product, Recipe
+from .pydanticTypes import Product, Recipe
 
 load_dotenv()
 
