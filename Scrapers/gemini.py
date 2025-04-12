@@ -13,6 +13,9 @@ def queryGemini(prompt, model="gemini-2.0-flash", returnAsJson=False):
     headers = {
         'Content-Type': 'application/json'
     }
+
+    if returnAsJson:
+        prompt = f"Return your response in the strict json format that is specified: {prompt}"
     
     data = {
         "contents": [{
@@ -26,8 +29,22 @@ def queryGemini(prompt, model="gemini-2.0-flash", returnAsJson=False):
     # Extract the text from the response
     try:
         if returnAsJson:
-            # Remove ```json and ``` from the response and parse as json
-            return json.loads(response_json['candidates'][0]['content']['parts'][0]['text'].replace("```json", "").replace("```", ""))
+            # First check if there are any ```json and ``` in the response
+            if "```json" in response_json['candidates'][0]['content']['parts'][0]['text'] and "```" in response_json['candidates'][0]['content']['parts'][0]['text']:
+                # Remove ```json and ``` from the response 
+                response_json['candidates'][0]['content']['parts'][0]['text'] = response_json['candidates'][0]['content']['parts'][0]['text'].replace("```json", "").replace("```", "")
+                try:
+                    return json.loads(response_json['candidates'][0]['content']['parts'][0]['text'])
+                except:
+                    print(f"Error parsing json! for prompt: {prompt}")
+                    return response_json['candidates'][0]['content']['parts'][0]['text']
+            else:
+                # Try to parse the response as json
+                try:
+                    return json.loads(response_json['candidates'][0]['content']['parts'][0]['text'])
+                except:
+                    print(f"Error parsing json! for prompt: {prompt}")
+                    return response_json['candidates'][0]['content']['parts'][0]['text']
         else:
             return response_json['candidates'][0]['content']['parts'][0]['text']
     except (KeyError, IndexError):

@@ -16,7 +16,7 @@ json_format = '''{
 }
 '''
 
-def get_target_products(keyword, zip_code):
+def getTargetProducts(keyword, zip_code):
     """
     Query Target's API for products based on keyword and zip code.
     
@@ -55,9 +55,9 @@ def get_target_products(keyword, zip_code):
     }
     
     response = requests.get(base_url, params=params, headers=headers)
-    return response.json()
+    return response.json()["data"]["search"]["products"]
 
-def refine_target_products(products):
+def refineTargetProducts(products):
     refined_products = []
     for product in products:
         prompt = f"Extract the product name, price, and image URL from the following JSON: {product}. Return your response in the strict json format: {json_format}"
@@ -72,9 +72,9 @@ if __name__ == "__main__":
     # Default example
     SEARCH = "broccoli"
     ZIP_CODE = 47906
-    response = get_target_products(SEARCH, ZIP_CODE)
+    response = getTargetProducts(SEARCH, ZIP_CODE)
     products = response["data"]["search"]["products"]
-    refined_products = refine_target_products(products)
+    refined_products = refineTargetProducts(products)
     print(refined_products)
     
     # Export to JSON file
