@@ -1,0 +1,8 @@
+{
+  "provider": "store",
+  "itemName": "itemName",
+  "category": "category",
+  "brand": "brand",
+  "price": "price",
+  "unit": "unit"
+}
