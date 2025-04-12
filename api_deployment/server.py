@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Query
 from pydantic import BaseModel
 from src.recipe_provider import RecipeProvider
 import uvicorn
@@ -9,6 +9,8 @@ from fastapi.responses import JSONResponse
 from db.pydanticTypes import Recipe
 import db.supabaseWrapper as supabaseWrapper
 from scrapers import getProducts
+from enum import Enum
+from typing import Optional
 
 app = FastAPI(title="Recipe Generation API", 
               description="API for generating recipes based on user queries")
@@ -140,13 +142,50 @@ async def recipe(recipe_id: str):
     else:
         return recipe
 
+class SortType(str, Enum):
+    POPULAR = "popular"
+    NEWEST = "newest"
+    OLDEST = "oldest"
+
 @app.get("/recipes")
-async def recipes():
+async def recipes(
+    sort_type: Optional[SortType] = Query("newest", description="How to sort the recipes (popular, newest, oldest)"),
+    limit: Optional[int] = Query(10, description="Maximum number of recipes to return", gt=0),
+    page: Optional[int] = Query(1, description="Page number for pagination", gt=0)
+):
     """
-    Get all recipes from the database.
+    Get recipes from the database with optional pagination and sorting.
+    
+    Parameters:
+    - sort_type: How to sort the recipes (popular, newest, oldest)
+    - limit: Maximum number of recipes to return (default: 10)
+    - page: Page number for pagination (default: 1)
+    
+    Returns a JSON object containing the recipes and pagination metadata.
     """
-    recipes = supabaseWrapper.get_recipes()
-    return recipes
+    # Calculate offset for pagination
+    offset = (page - 1) * limit
+    
+    # Get recipes with pagination and sorting
+    recipes_result = supabaseWrapper.get_recipes(
+        sort_type=sort_type.value if sort_type else None,
+        limit=limit,
+        offset=offset
+    )
+    
+    # If the supabaseWrapper doesn't return pagination metadata,
+    # we can add it here
+    if isinstance(recipes_result, list):
+        return {
+            "data": recipes_result,
+            "pagination": {
+                "page": page,
+                "limit": limit,
+                "total": len(recipes_result)  # This would ideally come from the database
+            }
+        }
+    
+    return recipes_result
 
 class ProductQuery(BaseModel):
     product_name: str
