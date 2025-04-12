@@ -1,0 +1,43 @@
+{
+  "title": "Recipe Request",
+  "content": {
+    "recipe": {
+      "title": "String - Recipe title goes here",
+      "cuisine": "String - Cuisine type (e.g., Italian, Mexican, Indian)",
+      "tags": [
+        "String - Tag 1 (e.g., vegetarian)",
+        "String - Tag 2 (e.g., quick, gluten-free)"
+      ],
+      "ingredients": [
+        {
+          "name": "String - Ingredient name",
+          "amount": "String - Quantity (e.g., 2)",
+          "unit": "String - Unit of measurement (e.g., cups, tablespoons)",
+          "notes": "String - Optional preparation notes (e.g., diced, at room temperature)"
+        }
+      ],
+      "ingredient_sections": [
+        {
+          "section_name": "String - Section name (e.g., For the sauce, For the marinade)",
+          "ingredients": [
+            {
+              "name": "String - Ingredient name",
+              "amount": "String - Quantity",
+              "unit": "String - Unit of measurement",
+              "notes": "String - Optional preparation notes"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        "String - Step 1 description",
+        "String - Step 2 description"
+      ],
+      "prep_time_minutes": "Number - Preparation time in minutes",
+      "cook_time_minutes": "Number - Cooking time in minutes",
+      "servings": "Number - Number of servings",
+      "difficulty": "String - Recipe difficulty (e.g., easy, medium, hard)",
+      "notes": "String - Additional recipe notes or tips"
+    }
+  }
+}
