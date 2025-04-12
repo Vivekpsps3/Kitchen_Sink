@@ -58,15 +58,7 @@ export default function Navbar({
           {/* Removed text links for Recipes, Search, Shopping List */}
 
           <div className="flex items-center space-x-4">
-            {showAddRecipe && (
-              <Link
-                href="/post-recipe"
-                className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px] rounded-full`}
-                aria-label="Add Recipe"
-              >
-                <span className="font-matina text-sm relative top-[0.75px]">Upload Recipe</span>
-              </Link>
-            )}
+            
             <Link
               href="/search?filter=liked"
               className="text-gray-700 hover:text-[#32c94e] transition-colors"
@@ -83,9 +75,19 @@ export default function Navbar({
                 <ShoppingCart className="h-5 w-5" />
               </Link>
             )}
-            <button className="text-gray-700 hover:text-[#32c94e] transition-colors" aria-label="User Profile">
+            {showAddRecipe && (
+              <Link
+                href="/post-recipe"
+                className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px]`}
+                aria-label="Add Recipe"
+              >
+                <Plus className="h-5 w-5"/>
+                <span className="font-matina text-sm relative top-[0.75px] hidden sm:inline">Upload Recipe</span>
+              </Link>
+            )}
+            {/* <button className="text-gray-700 hover:text-[#32c94e] transition-colors" aria-label="User Profile">
               <User className="h-5 w-5" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
