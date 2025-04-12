@@ -124,7 +124,7 @@ def test_health_endpoint():
 
 if __name__ == "__main__":
     # Get query from command line arguments if provided
-    query = sys.argv[1] if len(sys.argv) > 1 else "vegetarian dinner recipe"
+    query = sys.argv[1] if len(sys.argv) > 1 else "Poison Berry Stew with Lawn Frog"
     
     # Test health endpoint first
     health_status = test_health_endpoint()

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
-from recipe_provider import RecipeProvider
+from src.recipe_provider import RecipeProvider
 import uvicorn
 import json
 import traceback

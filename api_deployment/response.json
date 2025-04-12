@@ -2,112 +2,93 @@
   "title": "Recipe Request",
   "content": {
     "recipe": {
-      "title": "Speedy Chickpea & Spinach Curry with Coconut Rice",
-      "cuisine": "Indian-Inspired",
+      "title": "Simmered Sludge: A Poison Berry and Lawn Frog Stew",
+      "cuisine": "Swamp Punk",
       "tags": [
-        "vegetarian",
-        "vegan",
-        "quick",
-        "easy",
-        "one-pot"
+        "Unique",
+        "Unusual Ingredients",
+        "Stew",
+        "Gamey",
+        "Caution: May be mildly poisonous"
       ],
       "ingredients": [
         {
-          "name": "Coconut Oil",
+          "name": "Lawn Frog",
+          "amount": "2",
+          "unit": "small",
+          "notes": "Skin removed, eviscerated. Ensure the frog is a common lawn frog species and not a protected amphibian."
+        },
+        {
+          "name": "Poison Berries",
           "amount": "1",
-          "unit": "tablespoon",
-          "notes": null
+          "unit": "cup",
+          "notes": "Use a *carefully identified* batch of dark, ripe poison berries. *Extreme caution is advised; ensure you know what you're picking! Only use berries that are traditionally considered edible locally.*"
+        },
+        {
+          "name": "Water",
+          "amount": "6",
+          "unit": "cups",
+          "notes": "Filtered or spring water preferred."
+        },
+        {
+          "name": "Wild Mushrooms",
+          "amount": "1",
+          "unit": "cup",
+          "notes": "Foraged from a damp forest floor. Carefully identified, of course."
+        },
+        {
+          "name": "Rough-Chopped Carrots",
+          "amount": "2",
+          "unit": "medium",
+          "notes": "Provides a touch of sweetness to offset the bitterness."
         },
         {
           "name": "Onion",
           "amount": "1",
           "unit": "medium",
-          "notes": "diced"
+          "notes": "Coarsely chopped."
         },
         {
-          "name": "Garlic",
+          "name": "Turnips",
           "amount": "2",
-          "unit": "cloves",
-          "notes": "minced"
+          "unit": "small",
+          "notes": "Peeled and cubed."
         },
         {
-          "name": "Ginger",
-          "amount": "1",
-          "unit": "teaspoon",
-          "notes": "grated"
-        },
-        {
-          "name": "Curry Powder",
+          "name": "Old Bay Seasoning",
           "amount": "2",
           "unit": "tablespoons",
-          "notes": null
-        },
-        {
-          "name": "Canned Diced Tomatoes",
-          "amount": "1",
-          "unit": "can (14.5 oz)",
-          "notes": "undrained"
-        },
-        {
-          "name": "Canned Chickpeas",
-          "amount": "1",
-          "unit": "can (15 oz)",
-          "notes": "drained and rinsed"
-        },
-        {
-          "name": "Coconut Milk",
-          "amount": "1",
-          "unit": "can (13.5 oz)",
-          "notes": "full-fat for best flavor"
-        },
-        {
-          "name": "Fresh Spinach",
-          "amount": "5",
-          "unit": "oz",
-          "notes": "roughly chopped"
+          "notes": "For a touch of familiar flavor."
         },
         {
           "name": "Salt",
+          "amount": "1",
+          "unit": "teaspoon",
+          "notes": "Or to taste."
+        },
+        {
+          "name": "Black Pepper",
           "amount": "1/2",
           "unit": "teaspoon",
-          "notes": "or to taste"
-        },
-        {
-          "name": "Cooked Rice",
-          "amount": "2",
-          "unit": "cups",
-          "notes": "cooked according to package directions, using coconut milk instead of water for extra flavor"
-        },
-        {
-          "name": "Lime wedges",
-          "amount": "2",
-          "unit": null,
-          "notes": "for serving"
-        },
-                {
-          "name": "Fresh Cilantro",
-          "amount": "2",
-          "unit": "tablespoons",
-          "notes": "chopped, for garnish"
+          "notes": "Freshly ground."
         }
       ],
       "ingredient_sections": [],
       "steps": [
-        "Heat coconut oil in a large pot or Dutch oven over medium heat.",
-        "Add diced onion and cook until softened, about 5 minutes.",
-        "Add minced garlic and grated ginger and cook for 1 minute more, until fragrant.",
-        "Stir in curry powder and cook for 30 seconds, stirring constantly.",
-        "Pour in canned diced tomatoes (undrained), canned chickpeas (drained and rinsed), and coconut milk.",
-        "Bring to a simmer, then reduce heat and cook for 10 minutes, allowing the flavors to meld.",
-        "Stir in fresh spinach and cook until wilted, about 2-3 minutes.",
-        "Season with salt to taste.",
-        "Serve hot over coconut rice, garnished with fresh cilantro and a wedge of lime for squeezing."
+        "1. Prepare the Lawn Frogs: Thoroughly clean the frogs under cold water. Ensure all internal organs are removed. Pat dry.",
+        "2. Brown the Frogs: In a large pot or Dutch oven, lightly brown the frogs over medium-high heat. This adds depth of flavor. Remove the frogs and set aside.",
+        "3. Sauté Vegetables: Add the onions and carrots to the pot and sauté until softened, about 5 minutes. Add the turnips and cook for another 3 minutes.",
+        "4. Introduce Flavor: Add the Old Bay seasoning, salt, and pepper. Stir to coat the vegetables.",
+        "5. Simmer the Stew: Pour in the water and bring to a boil. Reduce heat and add the frogs, poison berries, and wild mushrooms.",
+        "6. Simmer Further: Cover the pot and simmer for at least 60 minutes, or until the frog meat is tender and falling off the bone. (Note: the longer simmering time helps mellow the berries and cook them thoroughly)",
+        "7. Adjust Seasoning: Taste and adjust seasoning as needed. Add more salt, pepper, or Old Bay to your preference.",
+        "8. Serve: Ladle into bowls and serve hot. Be cautious when consuming, particularly if unfamiliar with the edibility of your poison berries."
       ],
-      "prep_time_minutes": 5,
-      "cook_time_minutes": 20,
-      "servings": 2,
-      "difficulty": "easy",
-      "notes": "Feel free to add other vegetables like bell peppers or peas. For a spicier curry, add a pinch of red pepper flakes or a chopped chili pepper along with the garlic and ginger. You can also use brown rice or quinoa instead of white rice."
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 60,
+      "servings": 4,
+      "difficulty": "Medium",
+      "notes": "This recipe is experimental and involves potentially poisonous ingredients. Exercise extreme caution and only use ingredients you can positively identify as safe for consumption. Proceed at your own risk. Best served with a side of skepticism."
     }
   }
 }
