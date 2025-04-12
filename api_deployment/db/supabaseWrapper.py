@@ -17,6 +17,10 @@ def get_recipes():
     response = supabase.table("recipes").select("*").execute()
     return response.data
 
+def get_recipe(recipe_id: str):
+    response = supabase.table("recipes").select("*").eq("id", recipe_id).execute()
+    return response.data
+
 def create_product(product: Product):
     # Check to make sure the product.itemName is not already in the database
     response = supabase.table("products").select("*").eq("itemName", product.itemName).execute()

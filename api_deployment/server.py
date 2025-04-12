@@ -127,7 +127,18 @@ async def recipe(recipe: Recipe):
         raise HTTPException(status_code=500, detail={"error": recipeResult["error"]})
     else:
         return {"status": "Recipe created successfully"}
-    
+
+@app.get("/recipe/{recipe_id}")
+async def recipe(recipe_id: str):
+    """
+    Get a recipe from the database.
+    """
+    recipe = supabaseWrapper.get_recipe(recipe_id)
+    if "error" in recipe:
+        raise HTTPException(status_code=500, detail={"error": recipe["error"]})
+    else:
+        return recipe
+
 @app.get("/recipes")
 async def recipes():
     """
