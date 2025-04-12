@@ -3,7 +3,7 @@
 
 import requests
 import json
-from gemini import queryGemini
+from Scrapers.gemini import queryGemini
 import time
 
 json_format = '''{
