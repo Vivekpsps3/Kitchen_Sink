@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Heart, Coffee, Utensils, Cake, Salad, Clock, Carrot, Beef, Fish, Sandwich } from "lucide-react"
+import { Heart, Coffee, Utensils, Cake, Salad, Clock, Carrot, Beef, Fish, Sandwich, Search, Wand2 } from "lucide-react"
 import RecipeCard from "@/components/recipe-card"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
@@ -15,13 +15,13 @@ interface Category {
   icon: React.ReactNode
 }
 
-export default function SearchPage() {
-  const searchParams = useSearchParams()
-  const initialSearchTerm = searchParams.get("q") || ""
-  const initialFilter = searchParams.get("filter") || ""
-
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm)
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(initialFilter ? [initialFilter] : [])
+export default function SearchPage({ searchParams }: { searchParams: { q?: string } }) {
+  const searchQuery = searchParams.q || ""
+  const [searchTerm, setSearchTerm] = useState(searchQuery)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null)
+  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [selectedDiet, setSelectedDiet] = useState<string | null>(null)
   const [recipes, setRecipes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -39,24 +39,19 @@ export default function SearchPage() {
     { id: "seafood", name: "Seafood", icon: <Fish className="h-6 w-6" /> },
   ]
 
-  // Check if we should pre-select categories from URL params
+  // Update searchTerm when URL changes
   useEffect(() => {
-    const filter = searchParams.get("filter")
-    const category = searchParams.get("category")
-
-    if (filter) {
-      setSelectedCategories([filter])
-    } else if (category) {
-      setSelectedCategories([category])
-    }
-
-    fetchRecipes()
-  }, [searchParams])
+    setSearchTerm(searchQuery)
+  }, [searchQuery])
 
   const fetchRecipes = async () => {
     setLoading(true)
 
     try {
+      // TODO: API endpoint integration coming soon
+      // For now, simulate loading state
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
       const query = supabase
         .from("recipes")
         .select(`
@@ -126,17 +121,11 @@ export default function SearchPage() {
   }
 
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategories((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId)
-      } else {
-        return [...prev, categoryId]
-      }
-    })
+    setSelectedCategory(categoryId)
   }
 
   const filterRecipes = () => {
-    if (!searchTerm && selectedCategories.length === 0) {
+    if (!searchTerm && selectedCategory === null) {
       return recipes
     }
 
@@ -147,34 +136,41 @@ export default function SearchPage() {
         recipe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         recipe.tags.some((tag: string) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
 
-      // Filter by categories
-      const matchesCategories =
-        selectedCategories.length === 0 ||
-        selectedCategories.some((category) => {
-          if (category === "liked") {
-            // In a real app, we would check if the recipe is liked by the user
-            return true // For demo purposes, assume all recipes can be liked
-          }
+      // Filter by category
+      const matchesCategory =
+        selectedCategory === null ||
+        selectedCategory === "liked" ||
+        recipe.tags.some((tag: string) => tag.toLowerCase() === selectedCategory.toLowerCase()) ||
+        recipe.dietaryRestrictions.some(
+          (restriction: string) => restriction.toLowerCase() === selectedCategory.toLowerCase(),
+        )
 
-          // Check if recipe tags include the selected category
-          return (
-            recipe.tags.some((tag: string) => tag.toLowerCase() === category.toLowerCase()) ||
-            recipe.dietaryRestrictions.some(
-              (restriction: string) => restriction.toLowerCase() === category.toLowerCase(),
-            )
-          )
-        })
-
-      return matchesSearch && matchesCategories
+      return matchesSearch && matchesCategory
     })
   }
 
   const filteredRecipes = filterRecipes()
 
   return (
-    <>
-      <Navbar showSearch={true} centeredSearch={true} />
-      <div className="container mx-auto px-4 py-12">
+    <div className="min-h-screen bg-[#fff8e7]">
+      <Navbar showSearch={false} />
+      <div className="container mx-auto px-4 pt-24">
+        {/* Search Bar Section */}
+        <section className="mb-12">
+          <div className="max-w-2xl mx-auto relative">
+            <form action="/search" method="GET" className="relative">
+              <input
+                type="text"
+                name="q"
+                defaultValue={searchQuery}
+                placeholder="Search recipes by name, ingredient, or cuisine..."
+                className="w-full py-3 px-12 rounded-full border border-gray-300 shadow-sm font-matina focus:outline-none focus:ring-2 focus:ring-[#32c94e]"
+              />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </form>
+          </div>
+        </section>
+
         {/* Search Header - Removed the search input since it's now in the navbar */}
         <div className="max-w-3xl mx-auto mb-10">
           <h1 className="font-gaya text-3xl md:text-4xl text-center mb-6">Find Your Perfect Recipe</h1>
@@ -188,14 +184,14 @@ export default function SearchPage() {
                 key={category.id}
                 onClick={() => toggleCategory(category.id)}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[100px] transition-all ${
-                  selectedCategories.includes(category.id)
+                  selectedCategory === category.id
                     ? "bg-[#32c94e] text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-100 shadow"
                 }`}
               >
                 <div
                   className={`p-3 rounded-full mb-2 ${
-                    selectedCategories.includes(category.id) ? "bg-white/20" : "bg-[#fff8e7]"
+                    selectedCategory === category.id ? "bg-white/20" : "bg-[#fff8e7]"
                   }`}
                 >
                   {category.icon}
@@ -220,12 +216,16 @@ export default function SearchPage() {
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
             <h3 className="font-gaya text-xl mb-2">No recipes found</h3>
-            <p className="font-matina text-gray-600">
+            <p className="font-matina text-gray-600 mb-6">
               Try adjusting your search or filters to find what you're looking for.
             </p>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-matina px-8 py-3 rounded-full flex items-center gap-2 mx-auto transition-colors">
+              <Wand2 className="h-5 w-5" />
+              Generate Recipe
+            </button>
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }

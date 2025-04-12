@@ -23,6 +23,7 @@ export default function Navbar({
   const pathname = usePathname()
   const router = useRouter()
   const isUploadPage = pathname === "/post-recipe"
+  const isSearchPage = pathname === "/search"
   const [searchTerm, setSearchTerm] = useState("")
 
   const handleSearch = (e: React.FormEvent) => {
@@ -40,7 +41,7 @@ export default function Navbar({
             KitchenSink!
           </Link>
 
-          {showSearch && centeredSearch && (
+          {showSearch && centeredSearch && !isSearchPage && (
             <div className="hidden md:flex max-w-md w-full mx-4 justify-center">
               <form onSubmit={handleSearch} className="relative w-full">
                 <input
@@ -58,6 +59,28 @@ export default function Navbar({
           {/* Removed text links for Recipes, Search, Shopping List */}
 
           <div className="flex items-center space-x-4">
+            {showSearch && (
+              <>
+                {!centeredSearch && (
+                  <Link
+                    href="/search"
+                    className="text-gray-700 hover:text-[#32c94e] transition-colors"
+                    aria-label="Search"
+                  >
+                    <Search className="h-5 w-5" />
+                  </Link>
+                )}
+                {centeredSearch && (
+                  <Link
+                    href="/search"
+                    className="md:hidden text-gray-700 hover:text-[#32c94e] transition-colors"
+                    aria-label="Search"
+                  >
+                    <Search className="h-5 w-5" />
+                  </Link>
+                )}
+              </>
+            )}
             
             <Link
               href="/search?filter=liked"
@@ -82,7 +105,7 @@ export default function Navbar({
                 aria-label="Add Recipe"
               >
                 <Plus className="h-5 w-5"/>
-                <span className="font-matina text-sm relative top-[0.75px] hidden sm:inline">Upload Recipe</span>
+                <span className="font-matina text-sm relative top-[0.75px] hidden whitespace-nowrap md:inline">Upload Recipe</span>
               </Link>
             )}
             {/* <button className="text-gray-700 hover:text-[#32c94e] transition-colors" aria-label="User Profile">

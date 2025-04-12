@@ -6,7 +6,10 @@ import Footer from "@/components/footer"
 export const metadata = {
   title: "KitchenSink! - Discover Culinary Excellence",
   description: "The ultimate culinary companion for discovering, creating, and sharing exceptional recipes.",
-    generator: 'v0.dev'
+  generator: 'v0.dev',
+  icons: {
+    icon: '/favicon.png',
+  }
 }
 
 export default function RootLayout({
