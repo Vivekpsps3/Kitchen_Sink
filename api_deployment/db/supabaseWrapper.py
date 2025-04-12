@@ -1,4 +1,5 @@
 import os
+import json
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from .pydanticTypes import Product, Recipe
@@ -31,13 +32,28 @@ def get_recipe(recipe_id: str):
     return response.data
 
 def create_product(product: Product):
-    # Check to make sure the product.itemName is not already in the database
-    response = supabase.table("products").select("*").eq("itemName", product.itemName).execute()
-    if response.data:
-        return "Product already exists"
-    else:
-        response = supabase.table("products").insert(product.model_dump()).execute()
-        return response.data
+    """
+    Create a new product in the Supabase database.
+    
+    Args:
+        product: A Product object containing all product data
+        
+    Returns:
+        The created product data or an error message
+    """
+    try:
+        # Check to make sure the product.itemName is not already in the database for the given brand and provider
+        response = supabase.table("products").select("*").eq("itemName", product.itemName).eq("brand", product.brand).eq("provider", product.provider).execute()
+        if response.data:
+            return {"error": "Product already exists", "status": ""}
+        else:
+            response = supabase.table("products").insert(product.model_dump()).execute()
+            print(f"Product created: {product.itemName}")
+            # Return as a dictionary   
+            return {"error": None, "status": "Product created successfully"}
+    except Exception as e:
+        # Return a more helpful error message
+        return {"error": f"Failed to create product: {str(e)}", "status": ""}
 
 def create_recipe(recipe: Recipe):
     """

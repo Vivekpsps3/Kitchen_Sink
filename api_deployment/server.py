@@ -6,7 +6,7 @@ import json
 import traceback
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from db.pydanticTypes import Recipe
+from db.pydanticTypes import Recipe, Product
 import db.supabaseWrapper as supabaseWrapper
 from scrapers import getProducts
 from enum import Enum
@@ -227,7 +227,31 @@ async def scrapeIngredients(product_query: ProductQuery):
     Accepts a JSON body with product_name and zip_code fields.
     """
     products = getProducts(product_query.product_name, product_query.zip_code)
-    return products
+    uploaded_products = []
+    for product in products:
+        try:
+            # unitAmountInOunces must be set to unitAmountOz
+            product["unitAmountOz"] = product["unitAmountInOunces"]
+            del product["unitAmountInOunces"]
+            # make sure the product is formatted correctly
+            product["provider"] = product["provider"].strip()
+            product["itemName"] = product["itemName"].strip()
+            product["category"] = product["category"].strip()
+            product["brand"] = product["brand"].strip()
+            product["unitAmountOz"] = float(product["unitAmountOz"])
+            product["price"] = float(product["price"])
+
+            product = Product(**product)
+
+            # Add the product to the database
+            upload_result = supabaseWrapper.create_product(product)
+            if upload_result["error"]:
+                print(f"Error uploading product! {upload_result['error']}")
+            else:
+                uploaded_products.append(product)
+        except Exception as e:
+            print(f"Error uploading product! {e}")
+    return uploaded_products
 
 @app.get("/health")
 async def health_check():
