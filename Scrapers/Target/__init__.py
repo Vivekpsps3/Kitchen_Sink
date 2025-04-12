@@ -54,9 +54,9 @@ if __name__ == "__main__":
     ZIP_CODE = 47906
     response = getTargetProducts(SEARCH, ZIP_CODE)
     products = response["data"]["search"]["products"]
-    refined_products = refineProducts(products)
-    print(refined_products)
+    # refined_products = refineProducts(products)
+    # print(refined_products)
     
-    # Export to JSON file
-    with open(f'{SEARCH}_{ZIP_CODE}.json', 'w') as f:
-        json.dump(refined_products, f, indent=2)
+    # # Export to JSON file
+    # with open(f'{SEARCH}_{ZIP_CODE}.json', 'w') as f:
+    #     json.dump(refined_products, f, indent=2)
