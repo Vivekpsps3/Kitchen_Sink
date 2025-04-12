@@ -3,18 +3,8 @@
 
 import requests
 import json
-from Scrapers.gemini import queryGemini
+from Scrapers.gemini import queryGemini, json_format
 import time
-
-json_format = '''{
-  "provider": "store (this should be the provider of the product, ex: Target, Walmart, etc.)",
-  "itemName": "itemName (this should be the name of the product, ex: Good and Gather Carrots, Birds Eye Frozen Broccoli Florets, etc.)",
-  "category": "category (this should be the category of the product, ex: Carrots, Frozen Pizzas, etc.)",
-  "brand": "brand (this should be the brand of the product, ex: Target, Birds Eye, etc.)",
-  "price": "price (this should be the price of the product, do not include the price in the unit. ex: $3.99, $1.99, etc.)",
-  "unit": "unit (this should be the unit of measure for the product, do not include the price in the unit. ex: 12oz, 1lb, 100g, etc.)"
-}
-'''
 
 def getTargetProducts(keyword, zip_code):
     """
@@ -57,16 +47,6 @@ def getTargetProducts(keyword, zip_code):
     response = requests.get(base_url, params=params, headers=headers)
     return response.json()["data"]["search"]["products"]
 
-def refineTargetProducts(products):
-    refined_products = []
-    for product in products:
-        prompt = f"Extract the product name, price, and image URL from the following JSON: {product}. Return your response in the strict json format: {json_format}"
-        # Wait for 0.25 seconds before querying Gemini
-        time.sleep(0.25)    
-        response = queryGemini(prompt, returnAsJson=True)
-        refined_products.append(response)
-    return refined_products
-
 # Example usage
 if __name__ == "__main__":
     # Default example
@@ -74,7 +54,7 @@ if __name__ == "__main__":
     ZIP_CODE = 47906
     response = getTargetProducts(SEARCH, ZIP_CODE)
     products = response["data"]["search"]["products"]
-    refined_products = refineTargetProducts(products)
+    refined_products = refineProducts(products)
     print(refined_products)
     
     # Export to JSON file

@@ -2,7 +2,7 @@ import os
 import base64
 import requests
 from dotenv import load_dotenv
-import pdb
+
 # Load environment variables
 load_dotenv()
 client_id = os.environ.get('KROGER_CLIENT_ID')
@@ -10,7 +10,7 @@ client_secret = os.environ.get('KROGER_CLIENT_SECRET')
 # Kroger API integration example
 coded_auth = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode('utf-8')
 
-def get_product_token():
+def getKrogerProductToken():
     try:
         request_body = "grant_type=client_credentials&scope=product.compact"
         response = requests.post(
@@ -29,7 +29,7 @@ def get_product_token():
         print(f'Error fetching access token: {error_message}')
         raise
 
-def get_location_token(zipcode, token):
+def getKrogerLocationToken(zipcode, token):
     try:
         response = requests.get(
             f'https://api.kroger.com/v1/locations?filter.zipcode.near={zipcode}&filter.radiusinMiles=50',
@@ -40,7 +40,6 @@ def get_location_token(zipcode, token):
             }
         )
         response.raise_for_status()
-        pdb.set_trace()
 
         return response.json()['data'][0]['locationId']
     except Exception as error:
@@ -48,7 +47,7 @@ def get_location_token(zipcode, token):
         print(f'Error fetching location data: {error_message}')
         raise
 
-def get_product_details(search_term, location_id, token, brand=''):
+def getKrogerProductDetails(search_term, location_id, token, brand=''):
     try:
         params = {
             "filter.term": search_term,
@@ -92,7 +91,13 @@ def get_product_details(search_term, location_id, token, brand=''):
         raise 
 
 if __name__ == "__main__":
-    token = get_product_token()
-    location = get_location_token(47906, token)
-    products = get_product_details("carrots", location, token)
-    print(products)
+    import json
+    token = getKrogerProductToken()
+    location = getKrogerLocationToken(47906, token)
+    products = getKrogerProductDetails("carrots", location, token)
+    # save the products to a json file
+    with open('products.json', 'w') as f:
+        json.dump(products, f, indent=4)
+
+    # Print how many products were found
+    print(f"Found {len(products)} products")

@@ -7,7 +7,20 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Now import from Target
-from Scrapers.Target import getTargetProducts, refineTargetProducts
+from Scrapers.Target import getTargetProducts
+from Scrapers.Kroger import getKrogerProductToken, getKrogerLocationToken, getKrogerProductDetails
+from Scrapers.gemini import queryGemini, json_format
+
+def refineProducts(products):
+    import time
+    refined_products = []
+    for product in products:
+        prompt = f"Extract the product name, price, and image URL from the following JSON: {product}. Return your response in the strict json format: {json_format}"
+        # Wait for 0.5 seconds before querying Gemini
+        time.sleep(0.5)    
+        response = queryGemini(prompt, returnAsJson=True)
+        refined_products.append(response)
+    return refined_products
 
 def main():
     # Set up argument parser
@@ -19,31 +32,47 @@ def main():
     args = parser.parse_args()
     
     # Get products from Target
-    raw_products = getTargetProducts(args.product_name, args.zip_code)
-
-    # Refine the products
-    refined_products = refineTargetProducts(raw_products)
-    
-    # Create output dictionary with store information
-    output_data = {
+    rawTargetProducts = getTargetProducts(args.product_name, args.zip_code)
+    refinedTargetProducts = refineProducts(rawTargetProducts)
+    targetData = {
         "store": "target",
-        "products": refined_products
+        "products": refinedTargetProducts
+    }
+
+    # Get products from Kroger
+    krogerToken = getKrogerProductToken()
+    krogerLocation = getKrogerLocationToken(args.zip_code, krogerToken)
+    rawKrogerProducts = getKrogerProductDetails(args.product_name, krogerLocation, krogerToken)
+    refinedKrogerProducts = refineProducts(rawKrogerProducts)
+    krogerData = {
+        "store": "kroger",
+        "products": refinedKrogerProducts
     }
     
     # Create filename based on product name
     filename = f"{args.product_name.replace(' ', '_')}.json"
-    
+
+    # Create output dictionary with store information
+    outputData = {
+        "target": targetData.get("products"),
+        "kroger": krogerData.get("products")
+    }
+
     # Save to JSON file
     with open(filename, 'w') as f:
-        json.dump(output_data, f, indent=4)
+        json.dump(outputData, f, indent=4)
     
-    print(f"Saved {len(refined_products)} products to {filename}")
+    print(f"Saved {len(refinedTargetProducts) + len(refinedKrogerProducts)} products to {filename}")
     
     # Display results
-    for product in refined_products:
+    for product in refinedTargetProducts:
         print(f"Name: {product.get('itemName', 'N/A')}")
         print(f"Price: {product.get('price', 'N/A')}")
-        print(f"URL: {product.get('url', 'N/A')}")
+        print("-" * 50)
+    
+    for product in refinedKrogerProducts:
+        print(f"Name: {product.get('itemName', 'N/A')}")
+        print(f"Price: {product.get('price', 'N/A')}")
         print("-" * 50)
 
 if __name__ == "__main__":
