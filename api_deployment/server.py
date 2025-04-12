@@ -6,6 +6,8 @@ import json
 import traceback
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from db.pydanticTypes import Recipe
+import db.supabaseWrapper as supabaseWrapper
 
 app = FastAPI(title="Recipe Generation API", 
               description="API for generating recipes based on user queries")
@@ -113,6 +115,26 @@ async def generate_recipe(recipe_query: RecipeQuery):
     except Exception as e:
         # Let the global handler catch this
         raise
+
+@app.post("/recipe")
+async def recipe(recipe: Recipe):
+    """
+    Generate a recipe based on the provided recipe.
+    """
+    # Use the supabaseWrapper to create the recipe
+    recipeResult = supabaseWrapper.create_recipe(recipe)
+    if "error" in recipeResult:
+        raise HTTPException(status_code=500, detail={"error": recipeResult["error"]})
+    else:
+        return {"status": "Recipe created successfully"}
+    
+@app.get("/recipes")
+async def recipes():
+    """
+    Get all recipes from the database.
+    """
+    recipes = supabaseWrapper.get_recipes()
+    return recipes
 
 @app.get("/health")
 async def health_check():

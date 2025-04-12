@@ -29,10 +29,7 @@
           ]
         }
       ],
-      "steps": [
-        "String - Step 1 description",
-        "String - Step 2 description"
-      ],
+      "steps": ["String - Step 1 description", "String - Step 2 description"],
       "prep_time_minutes": "Number - Preparation time in minutes",
       "cook_time_minutes": "Number - Cooking time in minutes",
       "servings": "Number - Number of servings",

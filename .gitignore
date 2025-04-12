@@ -5,3 +5,5 @@
 .env.test.local
 .env.production.local
 *.pyc
+
+api_deployment/.venv
