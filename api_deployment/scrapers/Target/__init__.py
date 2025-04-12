@@ -3,7 +3,7 @@
 
 import requests
 import json
-from Scrapers.gemini import queryGemini, json_format
+from scrapers.gemini import queryGemini, json_format
 import time
 
 def getTargetProducts(keyword, zip_code):

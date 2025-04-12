@@ -6,6 +6,9 @@ import json
 import traceback
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from db.pydanticTypes import Recipe
+import db.supabaseWrapper as supabaseWrapper
+from scrapers import getProducts
 
 app = FastAPI(title="Recipe Generation API", 
               description="API for generating recipes based on user queries")
@@ -113,6 +116,51 @@ async def generate_recipe(recipe_query: RecipeQuery):
     except Exception as e:
         # Let the global handler catch this
         raise
+
+@app.post("/recipe")
+async def recipe(recipe: Recipe):
+    """
+    Generate a recipe based on the provided recipe.
+    """
+    # Use the supabaseWrapper to create the recipe
+    recipeResult = supabaseWrapper.create_recipe(recipe)
+    if "error" in recipeResult:
+        raise HTTPException(status_code=500, detail={"error": recipeResult["error"]})
+    else:
+        return {"status": "Recipe created successfully"}
+
+@app.get("/recipe/{recipe_id}")
+async def recipe(recipe_id: str):
+    """
+    Get a recipe from the database.
+    """
+    recipe = supabaseWrapper.get_recipe(recipe_id)
+    if "error" in recipe:
+        raise HTTPException(status_code=500, detail={"error": recipe["error"]})
+    else:
+        return recipe
+
+@app.get("/recipes")
+async def recipes():
+    """
+    Get all recipes from the database.
+    """
+    recipes = supabaseWrapper.get_recipes()
+    return recipes
+
+class ProductQuery(BaseModel):
+    product_name: str
+    zip_code: str
+
+@app.post("/scrapeIngredients")
+async def scrapeIngredients(product_query: ProductQuery):
+    """
+    Scrape product information based on product name and zip code.
+    
+    Accepts a JSON body with product_name and zip_code fields.
+    """
+    products = getProducts(product_query.product_name, product_query.zip_code)
+    return products
 
 @app.get("/health")
 async def health_check():
