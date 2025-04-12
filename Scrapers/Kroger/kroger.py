@@ -2,12 +2,11 @@ import os
 import base64
 import requests
 from dotenv import load_dotenv
-
+import pdb
 # Load environment variables
 load_dotenv()
 client_id = os.environ.get('KROGER_CLIENT_ID')
 client_secret = os.environ.get('KROGER_CLIENT_SECRET')
-
 # Kroger API integration example
 coded_auth = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode('utf-8')
 
@@ -30,26 +29,27 @@ def get_product_token():
         print(f'Error fetching access token: {error_message}')
         raise
 
-def get_location_token(zipcode):
+def get_location_token(zipcode, token):
     try:
         response = requests.get(
-            f'https://api.kroger.com/v1/locations?filter.zipcode.near={zipcode}',
+            f'https://api.kroger.com/v1/locations?filter.zipcode.near={zipcode}&filter.radiusinMiles=50',
             headers={
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json',
-                'Authorization': f'Basic {coded_auth}'
+                'Authorization': f'Bearer {token}'
             }
         )
         response.raise_for_status()
-        return response.json()
+        pdb.set_trace()
+
+        return response.json()['data'][0]['locationId']
     except Exception as error:
         error_message = error.response.json() if hasattr(error, 'response') else str(error)
         print(f'Error fetching location data: {error_message}')
         raise
 
-def get_product_details(search_term, location, token, brand=''):
+def get_product_details(search_term, location_id, token, brand=''):
     try:
-        location_id = location["locationId"]
         params = {
             "filter.term": search_term,
             "filter.locationId": location_id
@@ -93,6 +93,6 @@ def get_product_details(search_term, location, token, brand=''):
 
 if __name__ == "__main__":
     token = get_product_token()
-    location = get_location_token(47906)
+    location = get_location_token(47906, token)
     products = get_product_details("carrots", location, token)
     print(products)
