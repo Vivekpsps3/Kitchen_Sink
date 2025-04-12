@@ -150,7 +150,7 @@ export default async function Home() {
         {/* Hero Section with Search */}
         <section className="mb-12">
           <div className="text-center mb-8">
-            <h1 className="font-gaya-italic text-4xl md:text-5xl mb-4">Discover Culinary Excellence</h1>
+            <h1 className="font-gaya text-4xl md:text-5xl mb-4">Discover Culinary Excellence</h1>
             <p className="font-matina text-lg text-gray-600 max-w-2xl mx-auto">
               Explore thousands of professional recipes, create your own culinary masterpieces, and connect with
               passionate food lovers.

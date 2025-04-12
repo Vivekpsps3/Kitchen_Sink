@@ -13,9 +13,18 @@ def get_products():
     response = supabase.table("products").select("*").execute()
     return response.data
 
-def get_recipes():
-    response = supabase.table("recipes").select("*").execute()
-    return response.data
+def get_recipes(sort_type: str, limit: int, offset: int):
+    if sort_type == "popular":
+        response = supabase.table("recipes").select("*").order("likes", desc=True).limit(limit).offset(offset).execute()
+        return response.data
+    elif sort_type == "newest":
+        response = supabase.table("recipes").select("*").order("created_at", desc=True).limit(limit).offset(offset).execute()
+        return response.data
+    elif sort_type == "oldest":
+        response = supabase.table("recipes").select("*").order("created_at", desc=False).limit(limit).offset(offset).execute()
+        return response.data
+    else:
+        return {"error": "Invalid sort type"}
 
 def get_recipe(recipe_id: str):
     response = supabase.table("recipes").select("*").eq("id", recipe_id).execute()
@@ -69,6 +78,10 @@ def create_recipe(recipe: Recipe):
         return response.data
     except:
         return {"error": "Error inserting recipe"}
+
+def get_featured_recipes():
+    response = supabase.table("recipes").select("*").eq("featured", True).execute()
+    return response.data
 
 if __name__ == "__main__":
     product = Product(

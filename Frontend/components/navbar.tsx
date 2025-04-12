@@ -36,7 +36,7 @@ export default function Navbar({
     <nav className="fixed top-0 left-0 right-0 bg-[#fff8e7] z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="font-gaya-italic text-3xl font-bold">
+          <Link href="/" className="font-gaya-italic text-3xl">
             KitchenSink!
           </Link>
 

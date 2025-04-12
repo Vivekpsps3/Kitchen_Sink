@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-gaya text-xl mb-4">KitchenSink!</h3>
+            <h3 className="font-gaya-italic text-xl mb-4">KitchenSink!</h3>
             <p className="font-matina text-gray-600 mb-4">
               Your ultimate culinary companion for discovering, creating, and sharing exceptional recipes.
             </p>
@@ -108,7 +108,7 @@ export default function Footer() {
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="font-matina text-sm text-gray-500 mb-4 md:mb-0">
-            © {new Date().getFullYear()} KitchenSink! All rights reserved.
+            © {new Date().getFullYear()} <span className="font-gaya-italic">KitchenSink!</span> All rights reserved.
           </p>
           <div className="flex space-x-6">
             <Link href="/privacy" className="font-matina text-sm text-gray-500 hover:text-[#32c94e]">
