@@ -78,7 +78,7 @@ export default function Navbar({
             {showAddRecipe && (
               <Link
                 href="/post-recipe"
-                className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px]`}
+                className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px] sm:px-1 sm:py-1 sm:border-gray-700 sm:border-[1.5px] sm:rounded-md sm:gap-1`}
                 aria-label="Add Recipe"
               >
                 <Plus className="h-5 w-5"/>
