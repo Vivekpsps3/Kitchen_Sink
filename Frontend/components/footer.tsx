@@ -57,7 +57,7 @@ export default function Footer() {
             <h4 className="font-gaya text-lg mb-4">Community</h4>
             <ul className="space-y-2 font-matina">
               <li>
-                <Link href="/post-recipe" className="text-gray-600 hover:text-[#32c94e]">
+                <Link href="/upload" className="text-gray-600 hover:text-[#32c94e]">
                   Submit a Recipe
                 </Link>
               </li>

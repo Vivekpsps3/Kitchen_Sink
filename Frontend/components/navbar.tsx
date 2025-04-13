@@ -22,7 +22,8 @@ export default function Navbar({
 }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const isUploadPage = pathname === "/post-recipe"
+  const isUploadPage = pathname === "/upload"
+  const isSearchPage = pathname === "/search"
   const [searchTerm, setSearchTerm] = useState("")
 
   const handleSearch = (e: React.FormEvent) => {
@@ -36,11 +37,11 @@ export default function Navbar({
     <nav className="fixed top-0 left-0 right-0 bg-[#fff8e7] z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="font-gaya-italic text-3xl">
+          <Link href="/home" className="font-gaya-italic text-3xl">
             KitchenSink!
           </Link>
 
-          {showSearch && centeredSearch && (
+          {showSearch && centeredSearch && !isSearchPage && (
             <div className="hidden md:flex max-w-md w-full mx-4 justify-center">
               <form onSubmit={handleSearch} className="relative w-full">
                 <input
@@ -58,15 +59,29 @@ export default function Navbar({
           {/* Removed text links for Recipes, Search, Shopping List */}
 
           <div className="flex items-center space-x-4">
-            {showAddRecipe && (
-              <Link
-                href="/post-recipe"
-                className={`flex items-center justify-center ${isUploadPage ? "text-[#32c94e]" : "text-gray-700 hover:text-[#32c94e]"} transition-colors p-1 border border-gray-300 rounded-md`}
-                aria-label="Add Recipe"
-              >
-                <Plus className="h-5 w-5" />
-              </Link>
+            {showSearch && (
+              <>
+                {!centeredSearch && (
+                  <Link
+                    href="/search"
+                    className="text-gray-700 hover:text-[#32c94e] transition-colors"
+                    aria-label="Search"
+                  >
+                    <Search className="h-5 w-5" />
+                  </Link>
+                )}
+                {centeredSearch && (
+                  <Link
+                    href="/search"
+                    className="md:hidden text-gray-700 hover:text-[#32c94e] transition-colors"
+                    aria-label="Search"
+                  >
+                    <Search className="h-5 w-5" />
+                  </Link>
+                )}
+              </>
             )}
+            
             <Link
               href="/search?filter=liked"
               className="text-gray-700 hover:text-[#32c94e] transition-colors"
@@ -83,9 +98,19 @@ export default function Navbar({
                 <ShoppingCart className="h-5 w-5" />
               </Link>
             )}
-            <button className="text-gray-700 hover:text-[#32c94e] transition-colors" aria-label="User Profile">
+            {showAddRecipe && (
+              <Link
+                href="/upload"
+                className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px] sm:px-1 sm:py-1 sm:border-gray-700 sm:border-[1.5px] sm:rounded-md sm:gap-1`}
+                aria-label="Add Recipe"
+              >
+                <Plus className="h-5 w-5"/>
+                <span className="font-matina text-sm relative top-[0.75px] hidden whitespace-nowrap md:inline">Upload Recipe</span>
+              </Link>
+            )}
+            {/* <button className="text-gray-700 hover:text-[#32c94e] transition-colors" aria-label="User Profile">
               <User className="h-5 w-5" />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

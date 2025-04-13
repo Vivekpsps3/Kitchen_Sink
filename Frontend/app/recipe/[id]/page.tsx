@@ -1,213 +1,106 @@
-import Image from "next/image"
-import { Star, Clock, Users, BarChart } from "lucide-react"
-import CommentSection from "@/components/comment-section"
-import { getRecipeById, getRecipeComments } from "@/lib/supabase/recipes"
+import { getRecipeById } from "@/lib/api/recipes"
 import { notFound } from "next/navigation"
+import Image from "next/image"
+import { Clock, Users, BarChart } from "lucide-react"
 import Navbar from "@/components/navbar"
-import { DietaryLabel } from "@/components/dietary-icon"
 
 export default async function RecipePage({ params }: { params: { id: string } }) {
-  console.log(`Rendering recipe page for ID: ${params.id}`)
-
   const recipe = await getRecipeById(params.id)
-  const comments = await getRecipeComments(params.id)
-
+  
   if (!recipe) {
-    console.error(`Recipe not found for ID: ${params.id}`)
     notFound()
   }
 
-  // Extract tags from recipe_tags, with fallback for missing data
-  const tags = recipe.recipe_tags?.map((rt: any) => rt.tags?.name).filter(Boolean) || []
-
-  // Extract dietary restrictions from tags
-  const dietaryRestrictions = tags.filter((tag: string) =>
-    ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Nut-Free", "Egg-Free", "Fish-Free", "Meat-Free"].includes(
-      tag,
-    ),
-  )
-
-  // Calculate average rating from comments
-  let averageRating = 0
-  let ratingCount = 0
-
-  comments.forEach((comment: any) => {
-    if (comment.rating) {
-      averageRating += comment.rating
-      ratingCount++
-    }
-  })
-
-  averageRating = ratingCount > 0 ? averageRating / ratingCount : 0
-
-  // Ensure ingredients and instructions are arrays
-  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
-  const instructions = Array.isArray(recipe.instructions) ? recipe.instructions : []
+  console.log('Recipe Data:', JSON.stringify(recipe, null, 2))
 
   return (
-    <>
+    <div className="min-h-screen bg-[#fff8e7]">
       <Navbar showSearch={true} centeredSearch={true} />
-
-      {/* Hero Section */}
-      <div className="flex flex-col md:flex-row">
-        {/* Left side - Image */}
-        <div className="md:w-1/2 relative h-[400px] md:h-[600px]">
-          <Image
-            src={recipe.image_url || "/placeholder.svg?height=600&width=1200"}
-            alt={recipe.title || "Recipe Image"}
-            fill
-            className="object-cover"
-            priority
-          />
+      <div className="container mx-auto px-4 pt-24">
+        {/* Recipe Header */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <h1 className="font-gaya text-4xl md:text-5xl mb-4 font-['Times_New_Roman']">{recipe.title}</h1>
+          <p className="font-matina text-lg text-gray-600 font-['Times_New_Roman']">{recipe.cuisine}</p>
         </div>
 
-        {/* Right side - Recipe Info */}
-        <div className="md:w-1/2 p-6 md:p-10 bg-white">
-          <h1 className="font-gaya text-3xl md:text-4xl font-bold mb-4">{recipe.title || "Untitled Recipe"}</h1>
-
-          <p className="font-matina text-lg mb-8">{recipe.description || "No description available."}</p>
-
-          {/* Dietary Restrictions */}
-          {dietaryRestrictions.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {dietaryRestrictions.map((restriction, index) => (
-                <DietaryLabel key={index} type={restriction} className="bg-[#32c94e]/10 text-[#32c94e]" />
-              ))}
+        {/* Recipe Metadata */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-5 w-5 text-[#32c94e]" />
+              <span className="font-matina font-bold font-['Times_New_Roman']">Prep Time</span>
             </div>
-          )}
-
-          {/* Recipe Metadata Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <div className="bg-[#fff8e7] p-4 rounded-lg">
-              <div className="flex items-center">
-                <Clock className="h-5 w-5 mr-2 text-primary" />
-                <span className="font-matina font-bold">Cook Time</span>
-              </div>
-              <p className="font-matina mt-1">{recipe.cook_time || "30 minutes"}</p>
-            </div>
-
-            <div className="bg-[#fff8e7] p-4 rounded-lg">
-              <div className="flex items-center">
-                <BarChart className="h-5 w-5 mr-2 text-primary" />
-                <span className="font-matina font-bold">Difficulty</span>
-              </div>
-              <p className="font-matina mt-1">{recipe.difficulty || "Intermediate"}</p>
-            </div>
-
-            <div className="bg-[#fff8e7] p-4 rounded-lg">
-              <div className="flex items-center">
-                <Users className="h-5 w-5 mr-2 text-primary" />
-                <span className="font-matina font-bold">Servings</span>
-              </div>
-              <p className="font-matina mt-1">{recipe.servings || 4} servings</p>
-            </div>
-
-            <div className="bg-[#fff8e7] p-4 rounded-lg">
-              <div className="flex items-center">
-                <Star className="h-5 w-5 mr-2 text-yellow-500" />
-                <span className="font-matina font-bold">Rating</span>
-              </div>
-              <div className="flex mt-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-4 w-4 ${
-                      star <= Math.round(averageRating) ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
+            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.prep_time_minutes}</span> minutes</p>
           </div>
-
-          {/* Tags */}
-          {tags.length > 0 && (
-            <div className="flex flex-wrap mb-4">
-              {tags
-                .filter(
-                  (tag) =>
-                    ![
-                      "Vegan",
-                      "Vegetarian",
-                      "Gluten-Free",
-                      "Dairy-Free",
-                      "Nut-Free",
-                      "Egg-Free",
-                      "Fish-Free",
-                      "Meat-Free",
-                    ].includes(tag),
-                )
-                .map((tag, index) => (
-                  <span key={index} className="tag-pill font-matina">
-                    {tag}
-                  </span>
-                ))}
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="h-5 w-5 text-[#32c94e]" />
+              <span className="font-matina font-bold font-['Times_New_Roman']">Cook Time</span>
             </div>
-          )}
+            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.cook_time_minutes}</span> minutes</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-[#32c94e]" />
+              <span className="font-matina font-bold font-['Times_New_Roman']">Servings</span>
+            </div>
+            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.servings}</span> servings</p>
+          </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {/* Ingredients */}
-            <div className="md:col-span-1">
-              <h2 className="font-gaya text-2xl mb-4">Ingredients</h2>
-              <ul className="bg-white rounded-lg p-6 shadow-md">
-                {ingredients.length > 0 ? (
-                  ingredients.map((ingredient: any, index: number) => (
-                    <li key={ingredient.id || index} className="font-matina mb-2 flex">
-                      <span className="mr-2">•</span>
-                      {ingredient.amount && <span className="font-bold">{ingredient.amount}</span>}
-                      <span className={ingredient.amount ? "ml-2" : ""}>{ingredient.name}</span>
-                    </li>
-                  ))
-                ) : (
-                  <li className="font-matina text-gray-500">No ingredients listed</li>
-                )}
+        {/* Tags */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="flex flex-wrap gap-2">
+            {recipe.tags.map((tag: string, index: number) => (
+              <span key={index} className="bg-[#32c94e]/10 text-[#32c94e] px-4 py-2 rounded-full font-matina text-sm font-['Times_New_Roman']">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Ingredients */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Ingredients</h2>
+          {recipe.ingredient_sections.map((section: any, sectionIndex: number) => (
+            <div key={sectionIndex} className="mb-8">
+              <h3 className="font-matina font-bold text-lg mb-4 font-['Times_New_Roman']">{section.section_name}</h3>
+              <ul className="space-y-2">
+                {section.ingredients.map((ingredient: any, index: number) => (
+                  <li key={index} className="font-matina flex items-start gap-2 font-['Times_New_Roman']">
+                    <span className="text-[#32c94e]">•</span>
+                    <span>
+                      <span className="font-['Times_New_Roman']">{ingredient.amount}</span> {ingredient.unit} {ingredient.name}
+                      {ingredient.notes && <span className="text-gray-500"> ({ingredient.notes})</span>}
+                    </span>
+                  </li>
+                ))}
               </ul>
             </div>
-
-            {/* Instructions */}
-            <div className="md:col-span-2">
-              <h2 className="font-gaya text-2xl mb-4">Instructions</h2>
-              <ol className="bg-white rounded-lg p-6 shadow-md list-decimal list-inside space-y-4">
-                {instructions.length > 0 ? (
-                  instructions
-                    .sort((a: any, b: any) => (a.step_number || 0) - (b.step_number || 0))
-                    .map((instruction: any, index: number) => {
-                      // Highlight ingredients in instructions
-                      let highlightedInstruction = instruction.content || `Step ${index + 1}`
-
-                      if (ingredients.length > 0) {
-                        ingredients.forEach((ing: any) => {
-                          if (ing.name) {
-                            const regex = new RegExp(`\\b${ing.name}\\b`, "gi")
-                            highlightedInstruction = highlightedInstruction.replace(
-                              regex,
-                              `<span class="font-bold text-primary">${ing.name}${ing.amount ? ` (${ing.amount})` : ""}</span>`,
-                            )
-                          }
-                        })
-                      }
-
-                      return (
-                        <li key={instruction.id || index} className="font-matina">
-                          <span dangerouslySetInnerHTML={{ __html: highlightedInstruction }} />
-                        </li>
-                      )
-                    })
-                ) : (
-                  <li className="font-matina text-gray-500">No instructions provided</li>
-                )}
-              </ol>
-            </div>
-          </div>
-
-          {/* Comments Section */}
-          <CommentSection recipeId={params.id} comments={comments} />
+          ))}
         </div>
+
+        {/* Instructions */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Instructions</h2>
+          <ol className="space-y-4">
+            {recipe.steps.map((step: string, index: number) => (
+              <li key={index} className="font-matina flex gap-4 font-['Times_New_Roman']">
+                <span className="font-bold text-[#32c94e] font-['Times_New_Roman']">{index + 1}.</span>
+                <span>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Notes */}
+        {recipe.notes && (
+          <div className="max-w-4xl mx-auto mb-12">
+            <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Notes</h2>
+            <p className="font-matina text-gray-600 font-['Times_New_Roman']">{recipe.notes}</p>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   )
 }
