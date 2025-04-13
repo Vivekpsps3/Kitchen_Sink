@@ -15,7 +15,11 @@ def get_all_products():
     return response.data
 
 def get_products(ingredient: str, minimum_amount: float):
-    response = supabase.table("products").select("*").eq("category", ingredient).gt("unitAmountOz", minimum_amount).execute()
+    # Use ilike on both category and itemName to find partial matches
+    response = supabase.table("products").select("*")\
+        .ilike("category", f"%{ingredient}%")\
+        .ilike("itemName", f"%{ingredient}%")\
+        .gt("unitAmountOz", minimum_amount).execute()
     if response.data:
         # Select the most cost effective product by calculating unitAmountOz / price
         for product in response.data:

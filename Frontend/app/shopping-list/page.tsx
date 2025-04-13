@@ -457,20 +457,20 @@ export default function ShoppingListPage() {
           // Hit /fetchIngredients endpoint with this as the body
           // product_name: str
           // zip_code: "47906"
-          const fetchIngredientsResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/scrapeIngredients`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                product_name: item.ingredient,
-                zip_code: "47906",
-              }),
-            }
-          );
-          console.log(fetchIngredientsResponse);
+          // const fetchIngredientsResponse = await fetch(
+          //   `${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/scrapeIngredients`,
+          //   {
+          //     method: "POST",
+          //     headers: {
+          //       "Content-Type": "application/json",
+          //     },
+          //     body: JSON.stringify({
+          //       product_name: item.ingredient,
+          //       zip_code: "47906",
+          //     }),
+          //   }
+          // );
+          // console.log(fetchIngredientsResponse);
           continue;
         }
 
