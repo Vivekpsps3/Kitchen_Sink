@@ -86,6 +86,10 @@ def get_comments(recipe_id: str):
 
 def get_recipe(recipe_id: str):
     response = supabase.table("recipes").select("*").eq("id", recipe_id).execute()
+    if response.data:
+        # Get the comments for the recipe
+        comments = get_comments(recipe_id)
+        response.data["comments"] = comments
     return response.data
 
 def create_product(product: Product):
