@@ -10,9 +10,28 @@ url: str = os.environ.get("SUPABASE_PROJECT_URL")
 key: str = os.environ.get("SUPABASE_PROJECT_API")
 supabase: Client = create_client(url, key)
 
-def get_products():
+def get_all_products():
     response = supabase.table("products").select("*").execute()
     return response.data
+
+def get_products(ingredient: str, minimum_amount: float):
+    response = supabase.table("products").select("*").eq("category", ingredient).gt("unitAmountOz", minimum_amount).execute()
+    if response.data:
+        # Select the most cost effective product by calculating unitAmountOz / price
+        for product in response.data:
+            product["unitCost"] = product["price"] / product["unitAmountOz"]
+
+        # Return one product with the lowest unit cost per provider
+        product_list = {}
+        for product in response.data:
+            if product["provider"] not in product_list:
+                product_list[product["provider"]] = product
+            else:
+                if product["unitCost"] < product_list[product["provider"]]["unitCost"]:
+                    product_list[product["provider"]] = product
+        return product_list
+    else:
+        return {"error": "No products found", "data": []}
 
 def get_recipes(sort_type: str, limit: int, offset: int, search: str = None):
     """

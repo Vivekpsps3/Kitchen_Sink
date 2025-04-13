@@ -135,7 +135,6 @@ async def generate_shopping_list(ingredients_list: IngredientsList):
     except Exception as e:
         raise HTTPException(status_code=500, detail={"error": str(e)})
     
-
 @app.post("/recipe")
 async def recipe(recipe: Recipe):
     """
@@ -163,8 +162,6 @@ class SortType(str, Enum):
     POPULAR = "popular"
     NEWEST = "newest"
     OLDEST = "oldest"
-
-
 
 @app.get("/recipes")
 async def recipes(
@@ -257,6 +254,40 @@ async def scrapeIngredients(product_query: ProductQuery):
         except Exception as e:
             print(f"Error uploading product! {e}")
     return uploaded_products
+
+class Unit(str, Enum):
+    OUNCES = "ounces"
+    POUNDS = "pounds"
+    GRAMS = "grams"
+    KILOGRAMS = "kilograms"
+
+class IngredientQuery(BaseModel):
+    ingredient: str
+    amount: float
+    unit: Unit
+
+@app.get("/ingredients")
+async def ingredients(ingredient_query: IngredientQuery):
+    """
+    Get ingredients from the database.
+    """
+    # Convert all units to ounces
+    match ingredient_query.unit:
+        case Unit.OUNCES:
+            pass
+        case Unit.POUNDS:
+            ingredient_query.amount = ingredient_query.amount * 16
+        case Unit.GRAMS:
+            ingredient_query.amount = ingredient_query.amount / 28.3495
+        case Unit.KILOGRAMS:
+            ingredient_query.amount = ingredient_query.amount * 35.274
+    
+    # Get the product from the database
+    products = supabaseWrapper.get_products(ingredient_query.ingredient, ingredient_query.amount)
+    if "error" in products:
+        raise HTTPException(status_code=500, detail={"error": products["error"]})
+    else:
+        return products
 
 @app.get("/health")
 async def health_check():
