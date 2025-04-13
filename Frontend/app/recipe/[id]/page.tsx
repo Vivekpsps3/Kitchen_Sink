@@ -19,8 +19,8 @@ export default async function RecipePage({ params }: { params: { id: string } })
       <div className="container mx-auto px-4 pt-24">
         {/* Recipe Header */}
         <div className="max-w-4xl mx-auto mb-12">
-          <h1 className="font-gaya text-4xl md:text-5xl mb-4 font-['Times_New_Roman']">{recipe.title}</h1>
-          <p className="font-matina text-lg text-gray-600 font-['Times_New_Roman']">{recipe.cuisine}</p>
+          <h1 className="font-gaya text-4xl md:text-5xl mb-4">{recipe.title}</h1>
+          <p className="font-matina text-lg text-gray-600">{recipe.cuisine}</p>
         </div>
 
         {/* Recipe Metadata */}
@@ -28,23 +28,23 @@ export default async function RecipePage({ params }: { params: { id: string } })
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="h-5 w-5 text-[#32c94e]" />
-              <span className="font-matina font-bold font-['Times_New_Roman']">Prep Time</span>
+              <span className="font-matina font-bold">Prep Time</span>
             </div>
-            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.prep_time_minutes}</span> minutes</p>
+            <p className="font-matina"><span>{recipe.prep_time_minutes}</span> minutes</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="h-5 w-5 text-[#32c94e]" />
-              <span className="font-matina font-bold font-['Times_New_Roman']">Cook Time</span>
+              <span className="font-matina font-bold">Cook Time</span>
             </div>
-            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.cook_time_minutes}</span> minutes</p>
+            <p className="font-matina"><span>{recipe.cook_time_minutes}</span> minutes</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-5 w-5 text-[#32c94e]" />
-              <span className="font-matina font-bold font-['Times_New_Roman']">Servings</span>
+              <span className="font-matina font-bold">Servings</span>
             </div>
-            <p className="font-matina font-['Times_New_Roman']"><span className="font-['Times_New_Roman']">{recipe.servings}</span> servings</p>
+            <p className="font-matina"><span>{recipe.servings}</span> servings</p>
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export default async function RecipePage({ params }: { params: { id: string } })
         <div className="max-w-4xl mx-auto mb-12">
           <div className="flex flex-wrap gap-2">
             {recipe.tags.map((tag: string, index: number) => (
-              <span key={index} className="bg-[#32c94e]/10 text-[#32c94e] px-4 py-2 rounded-full font-matina text-sm font-['Times_New_Roman']">
+              <span key={index} className="bg-[#32c94e]/10 text-[#32c94e] px-4 py-2 rounded-full font-matina text-sm">
                 {tag}
               </span>
             ))}
@@ -61,16 +61,16 @@ export default async function RecipePage({ params }: { params: { id: string } })
 
         {/* Ingredients */}
         <div className="max-w-4xl mx-auto mb-12">
-          <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Ingredients</h2>
+          <h2 className="font-gaya text-2xl mb-6">Ingredients</h2>
           {recipe.ingredient_sections.map((section: any, sectionIndex: number) => (
             <div key={sectionIndex} className="mb-8">
-              <h3 className="font-matina font-bold text-lg mb-4 font-['Times_New_Roman']">{section.section_name}</h3>
+              <h3 className="font-matina font-bold text-lg mb-4">{section.section_name}</h3>
               <ul className="space-y-2">
                 {section.ingredients.map((ingredient: any, index: number) => (
-                  <li key={index} className="font-matina flex items-start gap-2 font-['Times_New_Roman']">
+                  <li key={index} className="font-matina flex items-start gap-2">
                     <span className="text-[#32c94e]">•</span>
                     <span>
-                      <span className="font-['Times_New_Roman']">{ingredient.amount}</span> {ingredient.unit} {ingredient.name}
+                      <span>{ingredient.amount}</span> {ingredient.unit} {ingredient.name}
                       {ingredient.notes && <span className="text-gray-500"> ({ingredient.notes})</span>}
                     </span>
                   </li>
@@ -82,11 +82,11 @@ export default async function RecipePage({ params }: { params: { id: string } })
 
         {/* Instructions */}
         <div className="max-w-4xl mx-auto mb-12">
-          <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Instructions</h2>
+          <h2 className="font-gaya text-2xl mb-6">Instructions</h2>
           <ol className="space-y-4">
             {recipe.steps.map((step: string, index: number) => (
-              <li key={index} className="font-matina flex gap-4 font-['Times_New_Roman']">
-                <span className="font-bold text-[#32c94e] font-['Times_New_Roman']">{index + 1}.</span>
+              <li key={index} className="font-matina flex gap-4">
+                <span className="font-bold text-[#32c94e]">{index + 1}.</span>
                 <span>{step}</span>
               </li>
             ))}
@@ -96,8 +96,8 @@ export default async function RecipePage({ params }: { params: { id: string } })
         {/* Notes */}
         {recipe.notes && (
           <div className="max-w-4xl mx-auto mb-12">
-            <h2 className="font-gaya text-2xl mb-6 font-['Times_New_Roman']">Notes</h2>
-            <p className="font-matina text-gray-600 font-['Times_New_Roman']">{recipe.notes}</p>
+            <h2 className="font-gaya text-2xl mb-6">Notes</h2>
+            <p className="font-matina text-gray-600">{recipe.notes}</p>
           </div>
         )}
       </div>

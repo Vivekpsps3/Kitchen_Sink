@@ -19,8 +19,8 @@ interface RecipeCardProps {
   image: string
   tags: string[]
   dietaryRestrictions?: DietaryType[]
-  rating: number
-  commentCount: number
+  rating?: number
+  commentCount?: number
   difficulty?: string
 }
 
@@ -30,8 +30,8 @@ export default function RecipeCard({
   image,
   tags,
   dietaryRestrictions = [],
-  rating,
-  commentCount,
+  rating = 0,
+  commentCount = 0,
   difficulty = "Intermediate",
 }: RecipeCardProps) {
   return (

@@ -1,128 +1,45 @@
 "use server"
 
-import { createClient } from "./server"
 import { revalidatePath } from "next/cache"
 
 export async function getRecipes() {
-  const supabase = createClient()
-
   try {
-    const { data, error } = await supabase
-      .from("recipes")
-      .select(`
-        *,
-        users (username, avatar_url),
-        ingredients (*),
-        instructions (*),
-        recipe_tags (
-          tags (*)
-        )
-      `)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error("Error fetching recipes:", error)
-      return []
+    const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipes?sort_type=popular&limit=6`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch recipes')
     }
-
-    return data || []
+    const data = await response.json()
+    return data.data || []
   } catch (error) {
-    console.error("Exception fetching recipes:", error)
+    console.error("Error fetching recipes:", error)
     return []
   }
 }
 
 export async function getFeaturedRecipes() {
-  const supabase = createClient()
-
   try {
-    const { data, error } = await supabase
-      .from("featured_recipes")
-      .select(`
-        *,
-        recipes (
-          *,
-          users (username, avatar_url)
-        )
-      `)
-      .order("featured_date", { ascending: false })
-      .limit(5)
-
-    if (error) {
-      console.error("Error fetching featured recipes:", error)
-      return []
+    const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/featuredRecipes`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch featured recipes')
     }
-
+    const data = await response.json()
     return data || []
   } catch (error) {
-    console.error("Exception fetching featured recipes:", error)
+    console.error("Error fetching featured recipes:", error)
     return []
   }
 }
 
 export async function getRecipeById(id: string) {
-  const supabase = createClient()
-
   try {
-    console.log(`Fetching recipe with ID: ${id}`)
-
-    // First, check if the recipe exists
-    const { data: recipeExists, error: checkError } = await supabase.from("recipes").select("id").eq("id", id).single()
-
-    if (checkError || !recipeExists) {
-      console.error(`Recipe with ID ${id} not found:`, checkError)
-
-      // If we can't find the recipe by UUID, try to find it by numeric ID
-      // This is useful for demo purposes where we might use simple numeric IDs
-      if (id && !isNaN(Number(id))) {
-        const { data: numericRecipe, error: numericError } = await supabase
-          .from("recipes")
-          .select(`
-            *,
-            users (username, avatar_url),
-            ingredients (*),
-            instructions (*),
-            recipe_tags (
-              tags (*)
-            )
-          `)
-          .limit(1)
-          .single()
-
-        if (!numericError && numericRecipe) {
-          console.log(`Found recipe using numeric ID fallback: ${numericRecipe.id}`)
-          return numericRecipe
-        }
-      }
-
-      // If we still can't find a recipe, return a mock recipe for demo purposes
-      console.log("Returning mock recipe for demo purposes")
-      return getMockRecipe(id)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipe/${id}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch recipe')
     }
-
-    // If the recipe exists, fetch the full data
-    const { data, error } = await supabase
-      .from("recipes")
-      .select(`
-        *,
-        users (username, avatar_url),
-        ingredients (*),
-        instructions (*),
-        recipe_tags (
-          tags (*)
-        )
-      `)
-      .eq("id", id)
-      .single()
-
-    if (error) {
-      console.error(`Error fetching recipe with id ${id}:`, error)
-      return getMockRecipe(id)
-    }
-
+    const data = await response.json()
     return data
   } catch (error) {
-    console.error(`Exception fetching recipe with id ${id}:`, error)
+    console.error(`Error fetching recipe with id ${id}:`, error)
     return getMockRecipe(id)
   }
 }
@@ -160,154 +77,39 @@ function getMockRecipe(id: string) {
 }
 
 export async function getRecipeComments(recipeId: string) {
-  const supabase = createClient()
-
   try {
-    const { data, error } = await supabase
-      .from("comments")
-      .select(`
-        *,
-        users (username, avatar_url),
-        comment_votes (*)
-      `)
-      .eq("recipe_id", recipeId)
-      .is("parent_id", null)
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error(`Error fetching comments for recipe ${recipeId}:`, error)
-      return []
+    const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipe/${recipeId}/comments`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch comments')
     }
-
-    // Get replies for each comment
-    for (const comment of data || []) {
-      const { data: replies, error: repliesError } = await supabase
-        .from("comments")
-        .select(`
-          *,
-          users (username, avatar_url),
-          comment_votes (*)
-        `)
-        .eq("parent_id", comment.id)
-        .order("created_at", { ascending: true })
-
-      if (repliesError) {
-        console.error(`Error fetching replies for comment ${comment.id}:`, repliesError)
-      } else {
-        comment.replies = replies || []
-      }
-    }
-
+    const data = await response.json()
     return data || []
   } catch (error) {
-    console.error(`Exception fetching comments for recipe ${recipeId}:`, error)
+    console.error(`Error fetching comments for recipe ${recipeId}:`, error)
     return []
   }
 }
 
 export async function createRecipe(recipeData: any) {
-  const supabase = createClient()
-
-  // First, insert the recipe
-  const { data: recipe, error: recipeError } = await supabase
-    .from("recipes")
-    .insert({
-      title: recipeData.title,
-      description: recipeData.description,
-      image_url: recipeData.imageUrl,
-      cook_time: recipeData.cookTime,
-      servings: recipeData.servings,
-      difficulty: recipeData.difficulty,
-      user_id: recipeData.userId,
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipe`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(recipeData),
     })
-    .select()
-    .single()
-
-  if (recipeError || !recipe) {
-    console.error("Error creating recipe:", recipeError)
+    
+    if (!response.ok) {
+      throw new Error('Failed to create recipe')
+    }
+    
+    const data = await response.json()
+    revalidatePath("/recipes")
+    revalidatePath("/")
+    return data
+  } catch (error) {
+    console.error("Error creating recipe:", error)
     return null
   }
-
-  // Insert ingredients
-  if (recipeData.ingredients && recipeData.ingredients.length > 0) {
-    const ingredientsToInsert = recipeData.ingredients.map((ingredient: any) => ({
-      recipe_id: recipe.id,
-      name: ingredient.name,
-      amount: ingredient.amount,
-    }))
-
-    const { error: ingredientsError } = await supabase.from("ingredients").insert(ingredientsToInsert)
-
-    if (ingredientsError) {
-      console.error("Error adding ingredients:", ingredientsError)
-    }
-  }
-
-  // Insert instructions
-  if (recipeData.instructions && recipeData.instructions.length > 0) {
-    const instructionsToInsert = recipeData.instructions.map((instruction: any, index: number) => ({
-      recipe_id: recipe.id,
-      step_number: index + 1,
-      content: instruction.text,
-    }))
-
-    const { error: instructionsError } = await supabase.from("instructions").insert(instructionsToInsert)
-
-    if (instructionsError) {
-      console.error("Error adding instructions:", instructionsError)
-    }
-  }
-
-  // Handle tags
-  if (recipeData.tags && recipeData.tags.length > 0) {
-    for (const tagName of recipeData.tags) {
-      // Check if tag exists
-      const { data: existingTag, error: tagError } = await supabase
-        .from("tags")
-        .select("*")
-        .eq("name", tagName)
-        .single()
-
-      if (tagError && tagError.code !== "PGRST116") {
-        // PGRST116 is "no rows returned"
-        console.error("Error checking tag:", tagError)
-        continue
-      }
-
-      let tagId
-
-      if (!existingTag) {
-        // Create tag if it doesn't exist
-        const { data: newTag, error: createTagError } = await supabase
-          .from("tags")
-          .insert({ name: tagName })
-          .select()
-          .single()
-
-        if (createTagError || !newTag) {
-          console.error("Error creating tag:", createTagError)
-          continue
-        }
-
-        tagId = newTag.id
-      } else {
-        tagId = existingTag.id
-      }
-
-      // Associate tag with recipe
-      const { error: recipeTagError } = await supabase.from("recipe_tags").insert({
-        recipe_id: recipe.id,
-        tag_id: tagId,
-      })
-
-      if (recipeTagError) {
-        console.error("Error associating tag with recipe:", recipeTagError)
-      }
-    }
-  }
-
-  revalidatePath("/recipes")
-  revalidatePath("/")
-
-  return recipe
 }
