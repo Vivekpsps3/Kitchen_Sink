@@ -27,14 +27,44 @@ export default function SearchPage({ searchParams }: { searchParams: { q?: strin
   const supabase = createClient()
 
   const categories: Category[] = [
-    { id: "liked", name: "Liked Recipes", icon: <Heart className="h-6 w-6" /> },
+    {
+      id: "liked",
+      name: "Liked Recipes",
+      icon: (
+        <Heart
+          className={`h-6 w-6 ${
+            selectedCategory === "liked" ? "text-white" : "text-pink-500"
+          }`}
+        />
+      ),
+    },
+    {
+      id: "quick",
+      name: "Quick & Easy",
+      icon: (
+        <Clock
+          className={`h-6 w-6 ${
+            selectedCategory === "quick" ? "text-white" : "text-yellow-500"
+          }`}
+        />
+      ),
+    },
+    {
+      id: "healthy",
+      name: "Healthy",
+      icon: (
+        <Carrot
+          className={`h-6 w-6 ${
+            selectedCategory === "healthy" ? "text-white" : "text-orange-500"
+          }`}
+        />
+      ),
+    },
     { id: "breakfast", name: "Breakfast", icon: <Coffee className="h-6 w-6" /> },
     { id: "lunch", name: "Lunch", icon: <Sandwich className="h-6 w-6" /> },
     { id: "dinner", name: "Dinner", icon: <Utensils className="h-6 w-6" /> },
     { id: "dessert", name: "Dessert", icon: <Cake className="h-6 w-6" /> },
     { id: "vegetarian", name: "Vegetarian", icon: <Salad className="h-6 w-6" /> },
-    { id: "quick", name: "Quick & Easy", icon: <Clock className="h-6 w-6" /> },
-    { id: "healthy", name: "Healthy", icon: <Carrot className="h-6 w-6" /> },
     { id: "meat", name: "Meat", icon: <Beef className="h-6 w-6" /> },
     { id: "seafood", name: "Seafood", icon: <Fish className="h-6 w-6" /> },
   ]
@@ -185,7 +215,13 @@ export default function SearchPage({ searchParams }: { searchParams: { q?: strin
                 onClick={() => toggleCategory(category.id)}
                 className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[100px] transition-all ${
                   selectedCategory === category.id
-                    ? "bg-[#32c94e] text-white shadow-md"
+                    ? category.id === "liked"
+                      ? "bg-pink-500 text-white shadow-md"
+                      : category.id === "quick"
+                      ? "bg-yellow-500 text-white shadow-md"
+                      : category.id === "healthy"
+                      ? "bg-orange-500 text-white shadow-md"
+                      : "bg-[#32c94e] text-white shadow-md"
                     : "bg-white text-gray-700 hover:bg-gray-100 shadow"
                 }`}
               >
