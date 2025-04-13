@@ -164,30 +164,35 @@ class SortType(str, Enum):
     NEWEST = "newest"
     OLDEST = "oldest"
 
+
+
 @app.get("/recipes")
 async def recipes(
     sort_type: Optional[SortType] = Query("newest", description="How to sort the recipes (popular, newest, oldest)"),
     limit: Optional[int] = Query(10, description="Maximum number of recipes to return", gt=0),
-    page: Optional[int] = Query(1, description="Page number for pagination", gt=0)
+    page: Optional[int] = Query(1, description="Page number for pagination", gt=0),
+    search: Optional[str] = Query(None, description="Search term to filter recipes by title, tags, or ingredients")
 ):
     """
-    Get recipes from the database with optional pagination and sorting.
+    Get recipes from the database with optional pagination, sorting, and search.
     
     Parameters:
     - sort_type: How to sort the recipes (popular, newest, oldest)
     - limit: Maximum number of recipes to return (default: 10)
     - page: Page number for pagination (default: 1)
+    - search: Optional search term to filter recipes
     
     Returns a JSON object containing the recipes and pagination metadata.
     """
     # Calculate offset for pagination
     offset = (page - 1) * limit
     
-    # Get recipes with pagination and sorting
+    # Get recipes with pagination, sorting, and search
     recipes_result = supabaseWrapper.get_recipes(
         sort_type=sort_type.value if sort_type else None,
         limit=limit,
-        offset=offset
+        offset=offset,
+        search=search
     )
     
     # If the supabaseWrapper doesn't return pagination metadata,
@@ -202,6 +207,7 @@ async def recipes(
             }
         }
     
+    return recipes_result
     return recipes_result
 
 @app.get("/featuredRecipes")
