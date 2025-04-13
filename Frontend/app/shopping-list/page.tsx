@@ -2,21 +2,33 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Plus, ShoppingCart, Check, X, Search } from "lucide-react"
+import { Plus, ShoppingCart, Check, X, Search, Clock, BarChart, MessageSquare, ExternalLink, ArrowRight } from "lucide-react"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
+import { parseCookies } from 'nookies'
 
 interface Recipe {
   id: string
   title: string
   description: string
   image: string
-  ingredients: string[]
+  ingredients: Array<{
+    name: string
+    unit: string
+    amount: string
+    notes?: string
+  } | string>
+  tags?: string[]
+  rating?: number
+  commentCount?: number
+  difficulty?: string
 }
 
 interface ShoppingItem {
   id: string
   name: string
+  amount?: string
+  unit?: string
   checked: boolean
   recipeId: string
 }
@@ -37,56 +49,240 @@ export default function ShoppingListPage() {
     setLoading(true)
 
     try {
-      // In a real app, we would fetch the user's liked recipes
-      // For demo purposes, we'll fetch some recipes and pretend they're liked
-      const { data, error } = await supabase
-        .from("recipes")
-        .select(`
-          id,
-          title,
-          description,
-          image_url,
-          ingredients (name, amount)
-        `)
-        .limit(5)
-
-      if (error) {
-        throw error
+      // Get liked recipes from cookies
+      const cookies = parseCookies()
+      
+      // Parse the cookie to get liked recipe IDs
+      let likedRecipeIds: string[] = []
+      
+      if (cookies.likedRecipes) {
+        try {
+          // Try standard JSON parsing first
+          likedRecipeIds = JSON.parse(cookies.likedRecipes)
+        } catch (e) {
+          // If standard parsing fails, handle URL-encoded format
+          const decodedCookie = decodeURIComponent(cookies.likedRecipes)
+          
+          // Remove brackets and split by comma
+          if (decodedCookie.startsWith('[') && decodedCookie.endsWith(']')) {
+            const content = decodedCookie.substring(1, decodedCookie.length - 1)
+            likedRecipeIds = content.split(',')
+          }
+        }
       }
+      
+      if (likedRecipeIds.length === 0) {
+        // If no liked recipes in cookies, fall back to fetching from Supabase for demo
+        const { data, error } = await supabase
+          .from("recipes")
+          .select(`
+            id,
+            title,
+            description,
+            image_url,
+            ingredients (name, amount, unit, notes)
+          `)
+          .limit(5)
 
-      const transformedRecipes = data.map((recipe: any) => ({
-        id: recipe.id,
-        title: recipe.title,
-        description: recipe.description || "A delicious recipe",
-        image: recipe.image_url || "/placeholder.svg?height=100&width=100",
-        ingredients: recipe.ingredients.map((ing: any) => `${ing.amount ? ing.amount + " " : ""}${ing.name}`),
-      }))
+        if (error) {
+          throw error
+        }
 
-      setLikedRecipes(transformedRecipes)
+        const transformedRecipes = data.map((recipe: any) => ({
+          id: recipe.id,
+          title: recipe.title,
+          description: recipe.description || "A delicious recipe",
+          image: recipe.image_url || "/placeholder.svg?height=100&width=100",
+          ingredients: recipe.ingredients.map((ing: any) => 
+            typeof ing === 'string' 
+              ? ing 
+              : {
+                  name: ing.name || '',
+                  amount: ing.amount || '',
+                  unit: ing.unit || 'units',
+                  notes: ing.notes
+                }
+          ),
+          difficulty: "Intermediate",
+          rating: 4.5,
+          commentCount: Math.floor(Math.random() * 20),
+          tags: ["Dinner", "Healthy"]
+        }))
+
+        setLikedRecipes(transformedRecipes)
+      } else {
+        // Fetch each liked recipe by ID
+        const likedRecipesPromises = likedRecipeIds.map(async (id: string) => {
+          try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipe/${id}`, {
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            })
+            
+            if (!response.ok) {
+              return null
+            }
+            
+            const responseData = await response.json()
+            // API returns an array of recipes, we need to get the first item
+            const recipeData = Array.isArray(responseData) ? responseData[0] : responseData
+            
+            if (!recipeData) {
+              return null
+            }
+            
+            // Transform the recipe data to match our Recipe interface
+            return {
+              id: recipeData.id || id,
+              title: recipeData.title || 'Untitled Recipe',
+              description: recipeData.description || 'No description available',
+              image: recipeData.image_url || '/placeholder.svg?height=100&width=100',
+              ingredients: recipeData.ingredients.map((ing: any) => 
+                typeof ing === 'string' 
+                  ? ing 
+                  : {
+                      name: ing.name || '',
+                      amount: ing.amount || '',
+                      unit: ing.unit || 'units',
+                      notes: ing.notes
+                    }
+              ),
+              tags: Array.isArray(recipeData.tags) ? recipeData.tags : [],
+              rating: recipeData.likes || 0,
+              commentCount: recipeData.comments?.length || 0,
+              difficulty: recipeData.difficulty || 'Intermediate'
+            }
+          } catch (error) {
+            console.error(`Error fetching recipe ${id}:`, error)
+            return null
+          }
+        })
+
+        const likedRecipesResults = await Promise.all(likedRecipesPromises)
+        const validRecipes = likedRecipesResults.filter(recipe => recipe !== null) as Recipe[]
+        
+        setLikedRecipes(validRecipes)
+      }
     } catch (error) {
       console.error("Error fetching liked recipes:", error)
+      setLikedRecipes([])
     } finally {
       setLoading(false)
     }
   }
 
   const addRecipeToShoppingList = (recipe: Recipe) => {
-    const newItems = recipe.ingredients.map((ingredient, index) => ({
-      id: `${recipe.id}-${index}`,
-      name: ingredient,
-      checked: false,
-      recipeId: recipe.id,
-    }))
+    const newItems = recipe.ingredients.map((ingredient, index) => {
+      // Handle both string and object formats for ingredients
+      let amount = '';
+      let unit = '';
+      let name = '';
+
+      if (typeof ingredient === 'string') {
+        // Parse ingredient string (legacy format)
+        name = ingredient;
+        const matches = ingredient.match(/^(\d+(\.\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/);
+        if (matches) {
+          amount = matches[1] || '';
+          unit = matches[3] || 'units';
+          name = matches[4] || ingredient;
+        }
+      } else {
+        // Use structured ingredient object
+        name = ingredient.name;
+        amount = ingredient.amount || '';
+        unit = ingredient.unit || 'units';
+      }
+
+      return {
+        id: `${recipe.id}-${index}`,
+        name,
+        amount,
+        unit,
+        checked: false,
+        recipeId: recipe.id,
+      };
+    });
 
     setShoppingList((prev) => {
       // Filter out any items that are already in the list from this recipe
       const filteredList = prev.filter((item) => item.recipeId !== recipe.id)
-      return [...filteredList, ...newItems]
+      
+      // Combine filtered list with new items and sort by similarity
+      const combinedList = [...filteredList, ...newItems]
+      return organizeIngredientsBySimilarity(combinedList)
     })
   }
 
+  // Function to clean ingredient text for comparison
+  const cleanIngredientText = (text: string): string[] => {
+    // Remove numbers, common units and punctuation
+    const cleanText = text.replace(/\d+(\.\d+)?/g, '')
+                         .replace(/(cup|cups|tbsp|tsp|teaspoon|teaspoons|tablespoon|tablespoons|oz|ounce|ounces|lb|pound|pounds|g|gram|grams|kg|kilogram|kilograms|ml|milliliter|milliliters|l|liter|liters|pinch|dash|to taste)/gi, '')
+                         .replace(/[^\w\s]/gi, '')
+                         .toLowerCase()
+                         .trim()
+    
+    // Split into words and filter out short words and empty strings
+    return cleanText.split(/\s+/).filter(word => word.length > 2)
+  }
+
+  // Calculate similarity score between two ingredients
+  const calculateSimilarity = (item1: ShoppingItem, item2: ShoppingItem): number => {
+    const words1 = cleanIngredientText(item1.name)
+    const words2 = cleanIngredientText(item2.name)
+    
+    // Count matching words
+    const matches = words1.filter(word => words2.includes(word))
+    
+    // Return number of matching words as similarity score
+    return matches.length
+  }
+  
+  // Organize shopping list to group similar ingredients together
+  const organizeIngredientsBySimilarity = (items: ShoppingItem[]): ShoppingItem[] => {
+    if (items.length <= 1) return items
+    
+    const result: ShoppingItem[] = []
+    const processed = new Set<string>()
+    
+    // Process each item
+    for (let i = 0; i < items.length; i++) {
+      const currentItem = items[i]
+      
+      // Skip if already processed
+      if (processed.has(currentItem.id)) continue
+      
+      // Mark current item as processed
+      processed.add(currentItem.id)
+      result.push(currentItem)
+      
+      // Find similar items
+      const similarItems = items
+        .filter(item => !processed.has(item.id))
+        .map(item => ({ 
+          item, 
+          similarity: calculateSimilarity(currentItem, item)
+        }))
+        .filter(({ similarity }) => similarity > 0)
+        .sort((a, b) => b.similarity - a.similarity)
+      
+      // Add similar items to result
+      for (const { item } of similarItems) {
+        processed.add(item.id)
+        result.push(item)
+      }
+    }
+    
+    return result
+  }
+
   const removeRecipeFromShoppingList = (recipeId: string) => {
-    setShoppingList((prev) => prev.filter((item) => item.recipeId !== recipeId))
+    setShoppingList((prev) => {
+      const filteredList = prev.filter((item) => item.recipeId !== recipeId)
+      return organizeIngredientsBySimilarity(filteredList)
+    })
   }
 
   const toggleItemChecked = (itemId: string) => {
@@ -96,21 +292,41 @@ export default function ShoppingListPage() {
   const addCustomItem = () => {
     if (!newItem.trim()) return
 
-    setShoppingList((prev) => [
-      ...prev,
-      {
+    // Parse custom item for amount, unit, and name
+    let amount = '';
+    let unit = '';
+    let name = newItem.trim();
+
+    // Extract amount and unit from custom item string
+    const matches = newItem.trim().match(/^(\d+(\.\d+)?)\s*([a-zA-Z]+)?\s+(.+)$/);
+    if (matches) {
+      amount = matches[1] || '';
+      unit = matches[3] || 'units';
+      name = matches[4] || newItem.trim();
+    }
+
+    setShoppingList((prev) => {
+      const newShoppingItem = {
         id: `custom-${Date.now()}`,
-        name: newItem.trim(),
+        name,
+        amount,
+        unit,
         checked: false,
         recipeId: "custom",
-      },
-    ])
+      }
+      
+      const updatedList = [...prev, newShoppingItem]
+      return organizeIngredientsBySimilarity(updatedList)
+    })
 
     setNewItem("")
   }
 
   const removeItem = (itemId: string) => {
-    setShoppingList((prev) => prev.filter((item) => item.id !== itemId))
+    setShoppingList((prev) => {
+      const filteredList = prev.filter((item) => item.id !== itemId)
+      return organizeIngredientsBySimilarity(filteredList)
+    })
   }
 
   const findCheapestStore = () => {
@@ -129,7 +345,7 @@ export default function ShoppingListPage() {
     <>
       <Navbar showShoppingCart={false} showSearch={true} centeredSearch={true} />
       <div className="container mx-auto px-4 py-8">
-        <h1 className="font-gaya text-3xl md:text-4xl text-center mb-8">Shopping List</h1>
+        <h1 className="font-gaya text-3xl md:text-4xl text-center mb-8">Add Recipes to Shopping List</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column - Liked Recipes */}
@@ -152,8 +368,19 @@ export default function ShoppingListPage() {
               ) : likedRecipes.length > 0 ? (
                 <div className="space-y-4">
                   {likedRecipes.map((recipe) => (
-                    <div key={recipe.id} className="flex items-center border-b border-gray-100 pb-4">
-                      <div className="relative h-16 w-16 rounded-md overflow-hidden">
+                    <div key={recipe.id} className="flex border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow relative">
+                      {/* External Link Icon */}
+                      <a 
+                        href={`/r?id=${recipe.id}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="absolute top-2 right-2 p-1 rounded-full bg-white/70 text-gray-700 hover:bg-white z-10"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                      
+                      {/* Image with fixed aspect ratio */}
+                      <div className="relative w-1/3 h-28">
                         <Image
                           src={recipe.image || "/placeholder.svg"}
                           alt={recipe.title}
@@ -161,24 +388,68 @@ export default function ShoppingListPage() {
                           className="object-cover"
                         />
                       </div>
-                      <div className="ml-4 flex-grow">
-                        <h3 className="font-matina font-bold">{recipe.title}</h3>
-                        <p className="font-matina text-sm text-gray-600 line-clamp-1">{recipe.description}</p>
+                      
+                      {/* Content */}
+                      <div className="w-2/3 p-3 flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-matina font-bold text-sm line-clamp-1">{recipe.title}</h3>
+                          <p className="font-matina text-xs text-gray-600 line-clamp-1 mb-1">{recipe.description}</p>
+                          
+                          {/* Metadata */}
+                          <div className="flex items-center gap-2 mt-1">
+                            {recipe.difficulty && (
+                              <div className="flex items-center text-xs text-gray-500">
+                                <BarChart className="h-3 w-3 mr-1" />
+                                <span>{recipe.difficulty}</span>
+                              </div>
+                            )}
+                            
+                            {recipe.commentCount !== undefined && (
+                              <div className="flex items-center text-xs text-gray-500">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                <span>{recipe.commentCount}</span>
+                              </div>
+                            )}
+                            
+                            {recipe.rating !== undefined && (
+                              <div className="flex items-center text-xs text-gray-500">
+                                <Clock className="h-3 w-3 mr-1" />
+                                <span>{recipe.rating}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center mt-2">
+                          {/* Tags */}
+                          <div className="flex gap-1">
+                            {recipe.tags && recipe.tags.slice(0, 1).map((tag, index) => (
+                              <span 
+                                key={index}
+                                className="bg-[#32c94e]/10 text-[#32c94e] text-[10px] px-1.5 py-0.5 rounded-full"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                          
+                          {/* Add/Remove button - updated with arrow icon and more pronounced styling */}
+                          <button
+                            onClick={() =>
+                              isRecipeInShoppingList(recipe.id)
+                                ? removeRecipeFromShoppingList(recipe.id)
+                                : addRecipeToShoppingList(recipe)
+                            }
+                            className={`p-1.5 rounded-full ${
+                              isRecipeInShoppingList(recipe.id)
+                                ? "bg-[#e80b07] text-white hover:bg-[#c70906]"
+                                : "bg-[#32c94e] text-white hover:bg-[#28a53f]"
+                            }`}
+                          >
+                            {isRecipeInShoppingList(recipe.id) ? <X className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() =>
-                          isRecipeInShoppingList(recipe.id)
-                            ? removeRecipeFromShoppingList(recipe.id)
-                            : addRecipeToShoppingList(recipe)
-                        }
-                        className={`p-2 rounded-full ${
-                          isRecipeInShoppingList(recipe.id)
-                            ? "bg-[#e80b07]/10 text-[#e80b07] hover:bg-[#e80b07]/20"
-                            : "bg-[#32c94e]/10 text-[#32c94e] hover:bg-[#32c94e]/20"
-                        }`}
-                      >
-                        {isRecipeInShoppingList(recipe.id) ? <X className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-                      </button>
                     </div>
                   ))}
                 </div>
@@ -215,7 +486,9 @@ export default function ShoppingListPage() {
                           {item.checked && <Check className="h-3 w-3" />}
                         </button>
                         <span className={`font-matina ${item.checked ? "line-through text-gray-400" : ""}`}>
+                          {item.amount && `${item.amount} `}
                           {item.name}
+                          {item.unit && item.unit !== "units" && ` ${item.unit}`}
                         </span>
                       </div>
                       <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-[#e80b07]">
