@@ -22,7 +22,7 @@ export default function Navbar({
 }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const isUploadPage = pathname === "/post-recipe"
+  const isUploadPage = pathname === "/upload"
   const isSearchPage = pathname === "/search"
   const [searchTerm, setSearchTerm] = useState("")
 
@@ -37,7 +37,7 @@ export default function Navbar({
     <nav className="fixed top-0 left-0 right-0 bg-[#fff8e7] z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="font-gaya-italic text-3xl">
+          <Link href="/home" className="font-gaya-italic text-3xl">
             KitchenSink!
           </Link>
 
@@ -100,7 +100,7 @@ export default function Navbar({
             )}
             {showAddRecipe && (
               <Link
-                href="/post-recipe"
+                href="/upload"
                 className={`flex items-center justify-center gap-1 ${isUploadPage ? "bg-gray-700 text-[var(--background)]" : "text-gray-700 hover:bg-gray-700 hover:text-[var(--background)]"} transition-all duration-200 px-2 py-1 border-gray-700 border-[1.5px] sm:px-1 sm:py-1 sm:border-gray-700 sm:border-[1.5px] sm:rounded-md sm:gap-1`}
                 aria-label="Add Recipe"
               >
