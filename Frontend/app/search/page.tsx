@@ -15,8 +15,9 @@ interface Category {
   icon: React.ReactNode
 }
 
-export default function SearchPage({ searchParams }: { searchParams: { q?: string } }) {
-  const searchQuery = searchParams.q || ""
+export default function SearchPage() {
+  const searchParams = useSearchParams()
+  const searchQuery = searchParams.get('q') || ""
   const [searchTerm, setSearchTerm] = useState(searchQuery)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null)
@@ -78,77 +79,38 @@ export default function SearchPage({ searchParams }: { searchParams: { q?: strin
     setLoading(true)
 
     try {
-      // TODO: API endpoint integration coming soon
-      // For now, simulate loading state
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const query = supabase
-        .from("recipes")
-        .select(`
-          *,
-          users (username, avatar_url),
-          recipe_tags (
-            tags (*)
-          )
-        `)
-        .order("created_at", { ascending: false })
+      console.log(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipes?search=${encodeURIComponent(searchTerm)}`)
 
-      const { data, error } = await query
-
-      if (error) {
-        throw error
-      }
-
-      // Transform the data
-      const transformedRecipes = data.map((recipe: any) => {
-        // Extract tags from recipe_tags
-        const tags = recipe.recipe_tags?.map((rt: any) => rt.tags?.name).filter(Boolean) || []
-
-        // Extract dietary restrictions from tags
-        const dietaryRestrictions = tags.filter((tag: string) =>
-          [
-            "Vegan",
-            "Vegetarian",
-            "Gluten-Free",
-            "Dairy-Free",
-            "Nut-Free",
-            "Egg-Free",
-            "Fish-Free",
-            "Meat-Free",
-          ].includes(tag),
-        )
-
-        return {
-          id: recipe.id,
-          title: recipe.title,
-          image: recipe.image_url || "/placeholder.svg?height=300&width=400",
-          tags: tags.filter(
-            (tag: string) =>
-              ![
-                "Vegan",
-                "Vegetarian",
-                "Gluten-Free",
-                "Dairy-Free",
-                "Nut-Free",
-                "Egg-Free",
-                "Fish-Free",
-                "Meat-Free",
-              ].includes(tag),
-          ),
-          dietaryRestrictions,
-          rating: 4.5, // We'll calculate this from comments in a real implementation
-          commentCount: 10, // This would be a count from comments table
-          difficulty: recipe.difficulty || "Intermediate",
-        }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/recipes?search=${encodeURIComponent(searchTerm)}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
 
-      setRecipes(transformedRecipes)
+      const data = await response.json()
+      console.log(JSON.stringify(data))
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch recipes')
+      }
+
+      setRecipes(Array.isArray(data.data) ? data.data : [])
     } catch (error) {
       console.error("Error fetching recipes:", error)
+      // Set recipes to empty array on error
+      setRecipes([])
+      // You might want to show this error to the user in the UI
+      alert(error instanceof Error ? error.message : 'An unknown error occurred')
     } finally {
       setLoading(false)
     }
   }
+
+  // Fetch recipes when search term changes
+  useEffect(() => {
+    fetchRecipes()
+  }, [searchTerm])
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategory(categoryId)
@@ -246,7 +208,16 @@ export default function SearchPage({ searchParams }: { searchParams: { q?: strin
         ) : filteredRecipes.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} {...recipe} />
+              <RecipeCard 
+                key={recipe.id} 
+                id={recipe.id}
+                title={recipe.title}
+                image={recipe.image || "/placeholder.svg"}
+                tags={recipe.tags}
+                rating={recipe.rating || 0}
+                commentCount={recipe.comments?.length || 0}
+                difficulty={recipe.difficulty}
+              />
             ))}
           </div>
         ) : (

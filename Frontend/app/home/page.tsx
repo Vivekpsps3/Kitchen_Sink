@@ -4,6 +4,25 @@ import FeaturedCarousel from "@/components/featured-carousel"
 import { getRecipes, getFeaturedRecipes } from "@/lib/supabase/recipes"
 import Navbar from "@/components/navbar"
 
+type DietaryType =
+  | "Vegan"
+  | "Vegetarian"
+  | "Gluten-Free"
+  | "Dairy-Free"
+  | "Nut-Free"
+  | "Egg-Free"
+  | "Fish-Free"
+  | "Meat-Free"
+
+interface Recipe {
+  id: string
+  title: string
+  image_url?: string
+  tags: string[]
+  difficulty?: string
+  comments?: any[]
+}
+
 export default async function Home() {
   console.log("Rendering home page")
 
@@ -14,12 +33,12 @@ export default async function Home() {
   console.log(`Fetched ${recipesData.length} recipes and ${featuredRecipesData.length} featured recipes`)
 
   // Transform the data to match our component props
-  const recipes = recipesData.map((recipe: any) => {
+  const recipes = recipesData.map((recipe: Recipe) => {
     // Extract tags from recipe_tags
-    const tags = recipe.recipe_tags?.map((rt: any) => rt.tags?.name).filter(Boolean) || []
+    const tags = recipe.tags || []
 
     // Extract dietary restrictions from tags
-    const dietaryRestrictions = tags.filter((tag: string) =>
+    const dietaryRestrictions = tags.filter((tag: string): tag is DietaryType =>
       ["Vegan", "Vegetarian", "Gluten-Free", "Dairy-Free", "Nut-Free", "Egg-Free", "Fish-Free", "Meat-Free"].includes(
         tag,
       ),
@@ -44,7 +63,7 @@ export default async function Home() {
       ),
       dietaryRestrictions,
       rating: 4.5, // We'll calculate this from comments in a real implementation
-      commentCount: 10, // This would be a count from comments table
+      commentCount: recipe.comments?.length || 0,
       difficulty: recipe.difficulty || "Intermediate",
     }
   })
@@ -100,7 +119,7 @@ export default async function Home() {
   }
 
   // If we don't have enough recipes, use some mock data
-  if (recipes.length < 6) {
+  if (recipes.length < 1) {
     const mockRecipes = [
       {
         id: "1",
@@ -139,7 +158,11 @@ export default async function Home() {
 
     // Add mock data to fill in if we have fewer than 6 recipes
     while (recipes.length < 6) {
-      recipes.push(mockRecipes[recipes.length % mockRecipes.length])
+      const baseRecipe = mockRecipes[recipes.length % mockRecipes.length]
+      recipes.push({
+        ...baseRecipe,
+        id: `${baseRecipe.id}-${recipes.length + 1}` // Ensure unique IDs
+      })
     }
   }
 
