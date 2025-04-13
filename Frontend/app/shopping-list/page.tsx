@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/navbar";
 import { createClient } from "@/lib/supabase/client";
 import { parseCookies } from "nookies";
+import Loader from "@/components/Loader";
 
 interface Recipe {
   id: string;
@@ -746,75 +747,102 @@ export default function ShoppingListPage() {
               <div className="text-center">
                 <button
                   onClick={findCheapestStore}
-                  className="btn-primary font-matina py-3 px-6 !rounded-none"
+                  className="btn-primary font-matina py-3 px-6 !rounded-none flex items-center justify-center"
                   disabled={shoppingList.length === 0 || fetchingPrices}
                 >
-                  {fetchingPrices
-                    ? "Finding Best Prices..."
-                    : "Find Cheapest Store"}
+                  {fetchingPrices ? (
+                    <Loader />
+                  ) : (
+                    "Find Cheapest Store"
+                  )}
                 </button>
-
-                {cheapestStore && (
-                  <div className="mt-4 p-4 bg-[#32c94e]/10 rounded-lg">
-                    <p className="font-matina">
-                      The cheapest store for your shopping list is:
-                    </p>
-                    <p className="font-gaya text-xl mt-2">{cheapestStore}</p>
-                    {storePrice && (
-                      <p className="font-gaya text-2xl mt-1 text-[#32c94e]">
-                        ${storePrice.toFixed(2)}
-                      </p>
-                    )}
-
-                    {priceComparisons.length > 0 && (
-                      <div className="mt-4 text-left">
-                        <h3 className="font-gaya text-lg mb-2">
-                          Price Comparison
-                        </h3>
-                        <div className="flex flex-col md:flex-row md:gap-4">
-                          {priceComparisons.map((comparison, index) => (
-                            <div
-                              key={comparison.store}
-                              className={`mb-3 p-3 rounded flex-1 ${
-                                comparison.store.toLowerCase().includes('kroger') 
-                                  ? "bg-red-100" 
-                                  : comparison.store.toLowerCase().includes('walmart')
-                                    ? "bg-blue-100"
-                                    : "bg-gray-100"
-                              }`}
-                            >
-                              <div className="flex justify-between items-center">
-                                <p className="font-matina font-bold">
-                                  {comparison.store}
-                                </p>
-                                <p className="font-gaya-italic">
-                                  ${comparison.price.toFixed(2)}
-                                </p>
-                              </div>
-                              <div className="mt-2 space-y-1">
-                                {comparison.items.map((item, itemIndex) => (
-                                  <div
-                                    key={itemIndex}
-                                    className="flex justify-between text-sm"
-                                  >
-                                    <p>
-                                      {item.brand} {item.name} ({item.quantity})
-                                    </p>
-                                    <p>${item.price.toFixed(2)}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Price Comparison Section - Separate full-width section */}
+        {cheapestStore && (
+          <div className="mt-8 p-6 bg-white rounded-lg shadow-md w-full">
+            <div className="text-center mb-6">
+              <p className="font-matina text-lg">
+                The cheapest store for your shopping list is:
+              </p>
+              <p className="font-gaya text-3xl mt-2">{cheapestStore}</p>
+              {storePrice && (
+                <p className="font-gaya text-4xl mt-1 text-[#32c94e]">
+                  ${storePrice.toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            {priceComparisons.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-gaya text-2xl mb-4 text-center">
+                  Price Comparison
+                </h3>
+                <div className="flex flex-col md:flex-row md:gap-6">
+                  {priceComparisons.map((comparison, index) => (
+                    <div
+                      key={comparison.store}
+                      className="mb-3 flex-1 flex flex-col"
+                    >
+                      {/* Store header with title and total in its own row */}
+                      <div 
+                        className={`flex justify-between items-center p-4 mb-2 rounded-md md:rounded-lg shadow-sm ${
+                          comparison.store.toLowerCase().includes('kroger') 
+                            ? "bg-green-200" 
+                            : comparison.store.toLowerCase().includes('walmart')
+                              ? "bg-blue-200"
+                              : "bg-gray-200"
+                        }`}
+                      >
+                        <div className="flex flex-col">
+                          <p className="font-matina font-bold text-xl">
+                            {comparison.store}
+                          </p>
+                          {index === 0 && (
+                            <span className="mt-1 text-xs text-[#32c94e] bg-[#32c94e]/10 px-2 py-0.5 rounded-full inline-block">
+                              Best Price
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-gaya font-bold text-3xl">
+                          ${comparison.price.toFixed(2)}
+                        </p>
+                      </div>
+                      
+                      {/* Items list in a separate card */}
+                      <div className={`p-4 rounded-md md:rounded-lg ${
+                        comparison.store.toLowerCase().includes('kroger') 
+                          ? "bg-green-50" 
+                          : comparison.store.toLowerCase().includes('walmart')
+                            ? "bg-blue-50"
+                            : "bg-gray-50"
+                      }`}>
+                        <div className="space-y-2">
+                          {comparison.items.map((item, itemIndex) => (
+                            <div
+                              key={itemIndex}
+                              className="flex justify-between text-sm"
+                            >
+                              <p>
+                                {item.brand} {item.name} ({item.quantity})
+                              </p>
+                              <p className="font-gaya text-lg">
+                                ${item.price.toFixed(2)}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );
