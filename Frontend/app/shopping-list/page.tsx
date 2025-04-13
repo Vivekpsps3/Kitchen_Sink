@@ -771,36 +771,42 @@ export default function ShoppingListPage() {
                         <h3 className="font-gaya text-lg mb-2">
                           Price Comparison
                         </h3>
-                        {priceComparisons.map((comparison, index) => (
-                          <div
-                            key={comparison.store}
-                            className={`mb-3 p-3 rounded ${
-                              index === 0 ? "bg-[#32c94e]/20" : "bg-gray-100"
-                            }`}
-                          >
-                            <div className="flex justify-between items-center">
-                              <p className="font-matina font-bold">
-                                {comparison.store}
-                              </p>
-                              <p className="font-matina font-bold">
-                                ${comparison.price.toFixed(2)}
-                              </p>
+                        <div className="flex flex-col md:flex-row md:gap-4">
+                          {priceComparisons.map((comparison, index) => (
+                            <div
+                              key={comparison.store}
+                              className={`mb-3 p-3 rounded flex-1 ${
+                                comparison.store.toLowerCase().includes('kroger') 
+                                  ? "bg-red-100" 
+                                  : comparison.store.toLowerCase().includes('walmart')
+                                    ? "bg-blue-100"
+                                    : "bg-gray-100"
+                              }`}
+                            >
+                              <div className="flex justify-between items-center">
+                                <p className="font-matina font-bold">
+                                  {comparison.store}
+                                </p>
+                                <p className="font-gaya-italic">
+                                  ${comparison.price.toFixed(2)}
+                                </p>
+                              </div>
+                              <div className="mt-2 space-y-1">
+                                {comparison.items.map((item, itemIndex) => (
+                                  <div
+                                    key={itemIndex}
+                                    className="flex justify-between text-sm"
+                                  >
+                                    <p>
+                                      {item.brand} {item.name} ({item.quantity})
+                                    </p>
+                                    <p>${item.price.toFixed(2)}</p>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <div className="mt-2 space-y-1">
-                              {comparison.items.map((item, itemIndex) => (
-                                <div
-                                  key={itemIndex}
-                                  className="flex justify-between text-sm"
-                                >
-                                  <p>
-                                    {item.brand} {item.name} ({item.quantity})
-                                  </p>
-                                  <p>${item.price.toFixed(2)}</p>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
