@@ -7,7 +7,7 @@ export default function Featured3Page() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/r?id=featured-3');
+    router.push('/r?id=22');
   }, [router]);
 
   return (
