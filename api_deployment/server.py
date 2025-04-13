@@ -265,6 +265,26 @@ class IngredientQuery(BaseModel):
     amount: float
     unit: Unit
 
+
+class Ingredient(BaseModel):
+    name: str
+    amount: float
+    unit: str
+
+class ShoppingListQuery(BaseModel):
+    ingredients: list[Ingredient]
+
+@app.get("/shoppingList")
+async def shoppingList(shopping_list_query: ShoppingListQuery):
+    """
+    Get a shopping list based on the provided ingredients.
+    """
+    list_of_ingredients = []
+    for ingredient in shopping_list_query.ingredients:
+        list_of_ingredients.append(f"{ingredient.amount} {ingredient.unit} {ingredient.name}")
+    shopping_list = recipe_provider.generate_shopping_list_from_ingredients(list_of_ingredients)
+    return shopping_list
+
 @app.get("/ingredients")
 async def ingredients(ingredient_query: IngredientQuery):
     """
@@ -294,4 +314,4 @@ async def health_check():
     return {"status": "healthy"}
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=8001, reload=True)
