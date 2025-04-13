@@ -342,7 +342,7 @@ export default function PostRecipePage() {
       const data = await response.json()
       
       // Redirect to the recipe page
-      router.push(`/recipe/${data.recipeId}`)
+      router.push(`/r?id=${data.recipeId}`)
     } catch (error) {
       console.error("Error submitting recipe:", error)
       alert("Failed to submit recipe. Please try again.")

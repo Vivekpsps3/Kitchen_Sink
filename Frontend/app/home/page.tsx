@@ -1,5 +1,5 @@
 import { Search } from "lucide-react"
-import RecipeCard from "@/components/recipe-card"
+import RecipeCard, { RecipeCardProps } from "@/components/recipe-card"
 import FeaturedCarousel from "@/components/featured-carousel"
 import { getRecipes, getFeaturedRecipes } from "@/lib/supabase/recipes"
 import Navbar from "@/components/navbar"
@@ -30,10 +30,12 @@ export default async function Home() {
   const recipesData = await getRecipes()
   const featuredRecipesData = await getFeaturedRecipes()
 
-  console.log(`Fetched ${recipesData.length} recipes and ${featuredRecipesData.length} featured recipes`)
+  console.log(`Fetched ${recipesData?.length || 0} recipes and ${featuredRecipesData?.length || 0} featured recipes`)
 
   // Transform the data to match our component props
-  const recipes = recipesData.map((recipe: Recipe) => {
+  const recipes = (recipesData || []).map((recipe: Recipe) => {
+    if (!recipe) return null;
+    
     // Extract tags from recipe_tags
     const tags = recipe.tags || []
 
@@ -45,8 +47,8 @@ export default async function Home() {
     )
 
     return {
-      id: recipe.id,
-      title: recipe.title,
+      id: recipe.id || "unknown",
+      title: recipe.title || "Untitled Recipe",
       image: recipe.image_url || "/placeholder.svg?height=300&width=400",
       tags: tags.filter(
         (tag: string) =>
@@ -66,19 +68,21 @@ export default async function Home() {
       commentCount: recipe.comments?.length || 0,
       difficulty: recipe.difficulty || "Intermediate",
     }
-  })
+  }).filter(Boolean) as RecipeCardProps[];
 
   // Transform featured recipes data
-  const featuredMeals = featuredRecipesData.map((featured: any) => {
-    const recipe = featured.recipes
+  const featuredMeals = (featuredRecipesData || []).map((featured: any) => {
+    if (!featured?.recipes) return null;
+    
+    const recipe = featured.recipes;
     return {
-      id: recipe.id,
-      title: recipe.title,
+      id: recipe.id || "unknown",
+      title: recipe.title || "Untitled Recipe",
       image: recipe.image_url || "/placeholder.svg?height=600&width=1200",
       chef: recipe.users?.username || "Anonymous Chef",
       description: recipe.description || "A delicious recipe prepared with care and premium ingredients.",
     }
-  })
+  }).filter(Boolean);
 
   // If we don't have enough featured recipes, use some mock data
   if (featuredMeals.length < 3) {

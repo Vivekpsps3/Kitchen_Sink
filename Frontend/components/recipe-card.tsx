@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Star, MessageSquare, BarChart } from "lucide-react"
 import { DietaryLabel } from "./dietary-icon"
 
-type DietaryType =
+export type DietaryType =
   | "Vegan"
   | "Vegetarian"
   | "Gluten-Free"
@@ -13,7 +13,7 @@ type DietaryType =
   | "Fish-Free"
   | "Meat-Free"
 
-interface RecipeCardProps {
+export interface RecipeCardProps {
   id: string
   title: string
   image: string
@@ -35,7 +35,7 @@ export default function RecipeCard({
   difficulty = "Intermediate",
 }: RecipeCardProps) {
   return (
-    <Link href={`/recipe/${id}`}>
+    <Link href={`/r?id=${id}`}>
       <div className="relative h-80 rounded-xl overflow-hidden group shadow-md hover:shadow-xl transition-all duration-300">
         {/* Background Image */}
         <Image

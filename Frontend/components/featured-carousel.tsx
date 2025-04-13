@@ -59,7 +59,7 @@ export default function FeaturedCarousel({ meals }: FeaturedCarouselProps) {
                 <h2 className="font-gaya text-4xl mb-2">{meal.title}</h2>
                 <p className="font-matina text-lg mb-4 opacity-90">By {meal.chef}</p>
                 <p className="font-matina text-lg max-w-2xl line-clamp-2">{meal.description}</p>
-                <Link href={`/recipe/${meal.id}`}>
+                <Link href={`/r?id=${meal.id}`}>
                   <button className="mt-4 px-6 py-2 bg-[#32c94e] hover:bg-[#1aa033] text-white font-matina rounded-md transition-colors">
                     View Recipe
                   </button>

@@ -7,7 +7,41 @@ import { Heart, IceCreamCone, Salad, Clock, Carrot, Beef, Fish, Search, Wand2, S
 import RecipeCard from "@/components/recipe-card"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { parseCookies } from 'nookies'
+
+// Simple custom toast component
+const Toast = ({ message, isVisible, onClose }: { message: string, isVisible: boolean, onClose: () => void }) => {
+  const [isExiting, setIsExiting] = useState(false);
+  
+  // Auto close after 2 seconds
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    const timer = setTimeout(() => {
+      setIsExiting(true);
+      
+      // Wait for animation to complete before removing from DOM
+      setTimeout(() => {
+        setIsExiting(false);
+        onClose();
+      }, 300); // Match animation duration
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [isVisible, onClose]);
+  
+  // Early return after hooks
+  if (!isVisible && !isExiting) return null;
+  
+  const animationClass = isExiting ? 'animate-fade-out-up' : 'animate-fade-in-down';
+  
+  return (
+    <div className={`fixed rounded-xl top-6 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 shadow-lg z-50 ${animationClass}`}>
+      {message}
+    </div>
+  );
+};
 
 interface Category {
   id: string
@@ -15,15 +49,22 @@ interface Category {
 }
 
 export default function SearchPage() {
+  const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const searchQuery = searchParams.get('q') || ""
+  const filterParam = searchParams.get('filter')
+  const categoryParam = searchParams.get('category')
   const [searchTerm, setSearchTerm] = useState(searchQuery)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam)
   const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [selectedDiet, setSelectedDiet] = useState<string | null>(null)
   const [recipes, setRecipes] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [toastMessage, setToastMessage] = useState('')
+  const [showToast, setShowToast] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
 
   const categories: Category[] = [
@@ -39,10 +80,106 @@ export default function SearchPage() {
     { id: "dessert", icon: <IceCreamCone className="h-6 w-6" /> },
   ]
 
+  // Mark component as mounted to avoid hydration mismatch
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Set selected category based on filter param
+  useEffect(() => {
+    if (filterParam === 'liked') {
+      setSelectedCategory('liked')
+    } else if (categoryParam) {
+      setSelectedCategory(categoryParam)
+    }
+  }, [filterParam, categoryParam])
+
   // Update searchTerm when URL changes
   useEffect(() => {
     setSearchTerm(searchQuery)
   }, [searchQuery])
+
+  const fetchLikedRecipes = async () => {
+    setLoading(true)
+    try {
+      // Get liked recipes from cookies
+      const cookies = parseCookies()
+      
+      // Parse the URL-encoded cookie format
+      let likedRecipeIds: string[] = []
+      
+      if (cookies.likedRecipes) {
+        try {
+          // First try standard JSON parsing
+          likedRecipeIds = JSON.parse(cookies.likedRecipes)
+        } catch (e) {
+          // If standard parsing fails, handle the URL-encoded format [6%2C9]
+          const decodedCookie = decodeURIComponent(cookies.likedRecipes)
+          console.log('Decoded cookie:', decodedCookie)
+          
+          // Remove the brackets and split by comma
+          if (decodedCookie.startsWith('[') && decodedCookie.endsWith(']')) {
+            const content = decodedCookie.substring(1, decodedCookie.length - 1)
+            likedRecipeIds = content.split(',')
+          }
+        }
+      }
+      
+      console.log('Liked recipe IDs:', likedRecipeIds)
+      
+      if (likedRecipeIds.length === 0) {
+        setRecipes([])
+        setLoading(false)
+        return
+      }
+
+      // Fetch each liked recipe by ID
+      const likedRecipesPromises = likedRecipeIds.map(async (id: string) => {
+        const response = await fetch(`http://localhost:8000/recipe/${id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!response.ok) {
+          return null
+        }
+        
+        const responseData = await response.json()
+        // API returns an array of recipes, we need to get the first item
+        const recipeData = Array.isArray(responseData) ? responseData[0] : responseData
+        
+        if (!recipeData) {
+          console.error(`No recipe data found for ID: ${id}`)
+          return null
+        }
+        
+        console.log(`Recipe data for ID ${id}:`, recipeData)
+        
+        // Ensure the recipe data is formatted correctly for RecipeCard
+        return {
+          id: recipeData.id || id,
+          title: recipeData.title || 'Untitled Recipe',
+          image_url: recipeData.image_url || '/placeholder.svg',
+          tags: Array.isArray(recipeData.tags) ? recipeData.tags : [],
+          rating: recipeData.likes || 0,
+          comments: recipeData.comments || [],
+          difficulty: recipeData.difficulty || 'Intermediate',
+          dietaryRestrictions: recipeData.dietaryRestrictions || []
+        }
+      })
+
+      const likedRecipesResults = await Promise.all(likedRecipesPromises)
+      const validRecipes = likedRecipesResults.filter(recipe => recipe !== null)
+      
+      console.log("Processed liked recipes:", validRecipes)
+      setRecipes(validRecipes)
+    } catch (error) {
+      console.error("Error fetching liked recipes:", error)
+      setRecipes([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const fetchRecipes = async () => {
     setLoading(true)
@@ -69,23 +206,65 @@ export default function SearchPage() {
       console.error("Error fetching recipes:", error)
       // Set recipes to empty array on error
       setRecipes([])
-      // You might want to show this error to the user in the UI
-      alert(error instanceof Error ? error.message : 'An unknown error occurred')
+      // Show toast notification instead of alert
+      setToastMessage(error instanceof Error ? error.message : 'An unknown error occurred')
+      setShowToast(true)
     } finally {
       setLoading(false)
     }
   }
 
-  // Fetch recipes when search term changes
+  // Fetch recipes based on filter
   useEffect(() => {
-    fetchRecipes()
-  }, [searchTerm])
+    if (filterParam === 'liked') {
+      fetchLikedRecipes()
+    } else {
+      fetchRecipes()
+    }
+  }, [searchTerm, filterParam, selectedCategory])
 
   const toggleCategory = (categoryId: string) => {
-    setSelectedCategory(categoryId)
+    // If the category is already selected, unselect it
+    const newCategory = selectedCategory === categoryId ? null : categoryId
+    setSelectedCategory(newCategory)
+    
+    // Update URL with the new category
+    const params = new URLSearchParams()
+    
+    // When unchecking a category, refresh with just query parameter
+    if (newCategory === null) {
+      // Only keep the search query if it exists
+      if (searchQuery) {
+        params.set('q', searchQuery)
+      }
+      // Perform a full page refresh with the clean URL
+      window.location.href = `${pathname}${params.toString() ? '?' + params.toString() : ''}`
+      return
+    }
+    
+    // For setting a category, keep existing parameters
+    params.set('category', newCategory)
+    
+    // Preserve existing query parameter if it exists
+    if (searchQuery) {
+      params.set('q', searchQuery)
+    }
+    
+    // Preserve filter parameter if it exists
+    if (filterParam) {
+      params.set('filter', filterParam)
+    }
+    
+    // Update the URL without refreshing the page
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const filterRecipes = () => {
+    // If we're showing liked recipes via URL param, just return all recipes
+    if (filterParam === 'liked') {
+      return recipes
+    }
+
     if (!searchTerm && selectedCategory === null) {
       return recipes
     }
@@ -115,10 +294,17 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen bg-[#fff8e7]">
       <Navbar showSearch={false} />
+      {mounted && <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
+      />}
       <div className="container mx-auto px-4 pt-24">
         {/* Search Header - Removed the search input since it's now in the navbar */}
         <div className="max-w-3xl mx-auto mb-10">
-          <h1 className="font-gaya text-3xl md:text-4xl text-center mb-6 mt-4">Find Your Perfect Recipe</h1>
+          <h1 className="font-gaya text-3xl md:text-4xl text-center mb-6 mt-4">
+            {filterParam === 'liked' ? 'Your Liked Recipes' : 'Find Your Perfect Recipe'}
+          </h1>
         </div>
 
         {/* Search Bar Section */}
@@ -148,8 +334,10 @@ export default function SearchPage() {
               >
                 <div
                   className={`p-3 rounded-full border ${
-                    selectedCategory === category.id ? "border-[#32c94e]" : "border-gray-300"
-                  } bg-white hover:shadow-md`}
+                    selectedCategory === category.id 
+                      ? "border-2 border-[#32c94e] bg-[#32c94e]/10" 
+                      : "border border-gray-300 bg-white"
+                  } hover:shadow-md transition-all duration-200`}
                 >
                   {category.icon}
                 </div>
@@ -177,19 +365,24 @@ export default function SearchPage() {
                 key={recipe.id} 
                 id={recipe.id}
                 title={recipe.title}
-                image={recipe.image || "/placeholder.svg"}
-                tags={recipe.tags}
+                image={recipe.image_url || "/placeholder.svg"}
+                tags={Array.isArray(recipe.tags) ? recipe.tags : []}
                 rating={recipe.rating || 0}
                 commentCount={recipe.comments?.length || 0}
-                difficulty={recipe.difficulty}
+                difficulty={recipe.difficulty || 'Intermediate'}
+                dietaryRestrictions={recipe.dietaryRestrictions || []}
               />
             ))}
           </div>
         ) : (
           <div className="text-center py-12 bg-white rounded-lg shadow-md">
-            <h3 className="font-gaya text-xl mb-2">No recipes found</h3>
+            <h3 className="font-gaya text-xl mb-2">
+              {filterParam === 'liked' ? 'No liked recipes yet' : 'No recipes found'}
+            </h3>
             <p className="font-matina text-gray-600 mb-6">
-              Try adjusting your search or filters to find what you're looking for.
+              {filterParam === 'liked' 
+                ? 'Start liking recipes to see them here.'
+                : 'Try adjusting your search or filters to find what you\'re looking for.'}
             </p>
             <button className="bg-blue-600 hover:bg-blue-700 text-white font-matina px-8 py-3 rounded-full flex items-center gap-2 mx-auto transition-colors">
               <Wand2 className="h-5 w-5" />
