@@ -208,7 +208,6 @@ async def recipes(
         }
     
     return recipes_result
-    return recipes_result
 
 @app.get("/featuredRecipes")
 async def featuredRecipes():

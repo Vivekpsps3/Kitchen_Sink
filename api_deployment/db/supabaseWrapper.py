@@ -52,6 +52,17 @@ def get_recipes(sort_type: str, limit: int, offset: int, search: str = None):
     
     # Execute the query
     response = query.execute()
+    data = response.data
+
+    # Go through data and get the comments for each recipe
+    for recipe in data:
+        comments = get_comments(recipe["id"])
+        recipe["comments"] = comments
+
+    return data
+
+def get_comments(recipe_id: str):
+    response = supabase.table("comments").select("*").eq("recipe_id", recipe_id).execute()
     return response.data
 
 def get_recipe(recipe_id: str):
