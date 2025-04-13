@@ -20,7 +20,7 @@ export default function FeaturedPage() {
     // Fetch data or use mock data
     const mockFeaturedRecipes = [
       {
-        id: "featured-1",
+        id: "20",
         title: "Vegetarian Buddha Bowl",
         image:
           "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -29,7 +29,7 @@ export default function FeaturedPage() {
           "A vibrant, nutrient-packed bowl featuring the season's freshest produce. This colorful dish combines roasted root vegetables, leafy greens, and protein-rich quinoa, all topped with a zesty homemade dressing that brings the flavors together perfectly.",
       },
       {
-        id: "featured-2",
+        id: "21",
         title: "Lion's Mane and Tomato on Toast",
         image:
           "https://images.unsplash.com/photo-1639667870243-ec729a155145?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -38,7 +38,7 @@ export default function FeaturedPage() {
           "Handcrafted sourdough bread topped with lion's mane, sundried tomatoes, and extra virgin olive oil. This simple yet elegant appetizer showcases the pure flavors of quality ingredients and traditional techniques.",
       },
       {
-        id: "featured-3",
+        id: "22",
         title: "Garden-to-Table Pesto Farfalle",
         image:
           "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",

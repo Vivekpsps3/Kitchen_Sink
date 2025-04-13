@@ -7,7 +7,7 @@ export default function Featured1Page() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push('/r?id=featured-1');
+    router.push('/r?id=20');
   }, [router]);
 
   return (
