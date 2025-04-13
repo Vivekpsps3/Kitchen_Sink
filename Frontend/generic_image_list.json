@@ -1,0 +1,34 @@
+{
+    "images": [
+        {
+            "id": 1,
+            "url": "https://media.istockphoto.com/id/1457889029/photo/group-of-food-with-high-content-of-dietary-fiber-arranged-side-by-side.jpg?s=612x612&w=0&k=20&c=SEyObHsbBsrd1XZlgEg389VT86BMFKZKfKReKyVPAk4=",
+            "alt": "Foods high in dietary fiber"
+        },
+        {
+            "id": 2,
+            "url": "https://media.istockphoto.com/id/854725372/photo/healthy-food-clean-eating-selection.jpg?s=612x612&w=0&k=20&c=Ef1hlrgJnDdZvs05v6yKz1ajYZX_KaWJdR9vIVSxXP0=",
+            "alt": "Healthy food clean eating selection"
+        },
+        {
+            "id": 3,
+            "url": "https://media.istockphoto.com/id/1457433817/photo/group-of-healthy-food-for-flexitarian-diet.jpg?s=612x612&w=0&k=20&c=v48RE0ZNWpMZOlSp13KdF1yFDmidorO2pZTu2Idmd3M=",
+            "alt": "Healthy food for flexitarian diet"
+        },
+        {
+            "id": 4,
+            "url": "https://media.istockphoto.com/id/1369489882/photo/variety-of-vegan-plant-based-protein-food.jpg?s=612x612&w=0&k=20&c=nKvZEd0raRryOpsGhwB9iOCEIizrDqB3XeFvRLdJOyI=",
+            "alt": "Variety of vegan plant-based protein food"
+        },
+        {
+            "id": 5,
+            "url": "https://media.istockphoto.com/id/1161951083/photo/organic-food-background.jpg?s=612x612&w=0&k=20&c=Wj8Iuip_uJWKXBb4p4HoRXtWjtwDI5piAR4-Q8vswqQ=",
+            "alt": "Organic food background"
+        },
+        {
+            "id": 6,
+            "url": "https://media.istockphoto.com/id/1409514526/photo/healthy-food-healthy-eating-background-fruit-vegetable-berry-vegetarian-eating-superfood.jpg?s=612x612&w=0&k=20&c=nwH6Clh2YCn4PbzNjtgGv8KBn1MxGdJpqsxvI1nRMrg=",
+            "alt": "Healthy food background with fruits and vegetables"
+        }
+    ]
+}
