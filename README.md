@@ -1,3 +1,3 @@
-# Kitche Sink
+# Kitchen Sink
 
-It is all cooked
+We cooked
