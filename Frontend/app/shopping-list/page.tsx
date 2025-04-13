@@ -33,12 +33,26 @@ interface ShoppingItem {
   recipeId: string
 }
 
+interface PriceComparison {
+  store: string
+  price: number
+  items: Array<{
+    name: string
+    brand: string
+    price: number
+    quantity: string
+  }>
+}
+
 export default function ShoppingListPage() {
   const [likedRecipes, setLikedRecipes] = useState<Recipe[]>([])
   const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([])
   const [newItem, setNewItem] = useState("")
   const [loading, setLoading] = useState(true)
   const [cheapestStore, setCheapestStore] = useState<string | null>(null)
+  const [storePrice, setStorePrice] = useState<number | null>(null)
+  const [priceComparisons, setPriceComparisons] = useState<PriceComparison[]>([])
+  const [fetchingPrices, setFetchingPrices] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -329,13 +343,95 @@ export default function ShoppingListPage() {
     })
   }
 
-  const findCheapestStore = () => {
-    // In a real app, this would call an API to find the cheapest store
-    // For demo purposes, we'll just simulate a response
-    const stores = ["Aldi", "Walmart", "Kroger", "Publix", "Trader Joe's"]
-    const randomStore = stores[Math.floor(Math.random() * stores.length)]
-    setCheapestStore(randomStore)
-  }
+  const findCheapestStore = async () => {
+    if (shoppingList.length === 0) return;
+    
+    setFetchingPrices(true);
+    
+    try {
+      // Step 1: Transform shopping list for the API call
+      const ingredients = shoppingList.map(item => ({
+        name: item.name,
+        amount: item.amount,
+        unit: item.unit
+      }));
+      
+      // Step 2: Make GET request to /shoppingList
+      const shoppingListResponse = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/shoppingList`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ingredients }),
+      });
+      
+      if (!shoppingListResponse.ok) {
+        throw new Error('Failed to fetch shopping list');
+      }
+      
+      const shoppingListData = await shoppingListResponse.json();
+      
+      // Step 3: For each item in the response, query /ingredients
+      const storeComparisons: Record<string, PriceComparison> = {};
+      
+      for (const item of shoppingListData.shopping_list) {
+        // Convert quantity to amount for the /ingredients endpoint
+        const ingredientRequest = {
+          ingredient: item.ingredient,
+          amount: parseFloat(item.quantity.split(' ')[0]),
+          unit: item.quantity.split(' ')[1] || 'oz'
+        };
+        
+        const ingredientResponse = await fetch(`${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/ingredients`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(ingredientRequest),
+        });
+        
+        if (!ingredientResponse.ok) {
+          console.error(`Failed to fetch prices for ${item.ingredient}`);
+          continue;
+        }
+        
+        const priceData = await ingredientResponse.json();
+        
+        // Process each store's price data
+        Object.entries(priceData).forEach(([store, storeData]: [string, any]) => {
+          if (!storeComparisons[store]) {
+            storeComparisons[store] = {
+              store,
+              price: 0,
+              items: []
+            };
+          }
+          
+          storeComparisons[store].price += storeData.price;
+          storeComparisons[store].items.push({
+            name: storeData.itemName,
+            brand: storeData.brand,
+            price: storeData.price,
+            quantity: `${storeData.unitAmountOz} oz`
+          });
+        });
+      }
+      
+      // Convert store comparisons to array and sort by price
+      const comparisons = Object.values(storeComparisons).sort((a, b) => a.price - b.price);
+      setPriceComparisons(comparisons);
+      
+      // Set cheapest store and price
+      if (comparisons.length > 0) {
+        setCheapestStore(comparisons[0].store);
+        setStorePrice(comparisons[0].price);
+      }
+    } catch (error) {
+      console.error('Error finding cheapest store:', error);
+    } finally {
+      setFetchingPrices(false);
+    }
+  };
 
   const isRecipeInShoppingList = (recipeId: string) => {
     return shoppingList.some((item) => item.recipeId === recipeId)
@@ -487,8 +583,8 @@ export default function ShoppingListPage() {
                         </button>
                         <span className={`font-matina ${item.checked ? "line-through text-gray-400" : ""}`}>
                           {item.amount && `${item.amount} `}
+                          {item.unit && item.unit !== "units" && `${item.unit} `}
                           {item.name}
-                          {item.unit && item.unit !== "units" && ` ${item.unit}`}
                         </span>
                       </div>
                       <button onClick={() => removeItem(item.id)} className="text-gray-400 hover:text-[#e80b07]">
@@ -528,16 +624,41 @@ export default function ShoppingListPage() {
               <div className="text-center">
                 <button
                   onClick={findCheapestStore}
-                  className="btn-primary font-matina py-3 px-6"
-                  disabled={shoppingList.length === 0}
+                  className="btn-primary font-matina py-3 px-6 !rounded-none"
+                  disabled={shoppingList.length === 0 || fetchingPrices}
                 >
-                  Find Cheapest Store
+                  {fetchingPrices ? 'Finding Best Prices...' : 'Find Cheapest Store'}
                 </button>
 
                 {cheapestStore && (
                   <div className="mt-4 p-4 bg-[#32c94e]/10 rounded-lg">
                     <p className="font-matina">The cheapest store for your shopping list is:</p>
                     <p className="font-gaya text-xl mt-2">{cheapestStore}</p>
+                    {storePrice && (
+                      <p className="font-gaya text-2xl mt-1 text-[#32c94e]">${storePrice.toFixed(2)}</p>
+                    )}
+                    
+                    {priceComparisons.length > 0 && (
+                      <div className="mt-4 text-left">
+                        <h3 className="font-gaya text-lg mb-2">Price Comparison</h3>
+                        {priceComparisons.map((comparison, index) => (
+                          <div key={comparison.store} className={`mb-3 p-3 rounded ${index === 0 ? 'bg-[#32c94e]/20' : 'bg-gray-100'}`}>
+                            <div className="flex justify-between items-center">
+                              <p className="font-matina font-bold">{comparison.store}</p>
+                              <p className="font-matina font-bold">${comparison.price.toFixed(2)}</p>
+                            </div>
+                            <div className="mt-2 space-y-1">
+                              {comparison.items.map((item, itemIndex) => (
+                                <div key={itemIndex} className="flex justify-between text-sm">
+                                  <p>{item.brand} {item.name} ({item.quantity})</p>
+                                  <p>${item.price.toFixed(2)}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
