@@ -14,18 +14,56 @@ def get_products():
     response = supabase.table("products").select("*").execute()
     return response.data
 
-def get_recipes(sort_type: str, limit: int, offset: int):
+def get_recipes(sort_type: str, limit: int, offset: int, search: str = None):
+    """
+    Get recipes from the database with optional pagination, sorting, and search.
+    
+    Args:
+        sort_type: How to sort the recipes (popular, newest, oldest)
+        limit: Maximum number of recipes to return
+        offset: Offset for pagination
+        search: Optional search term to filter recipes
+        
+    Returns:
+        List of recipes or error message
+    """
+    # Start building the query
+    query = supabase.table("recipes").select("*")
+    
+    # Apply search filter if provided
+    if search and search.strip():
+        # Search in title (case-insensitive)
+        query = query.ilike("title", f"%{search}%")
+        # Note: For more advanced search across multiple fields or related tables,
+        # you would need to use a more complex query or a dedicated search service
+    
+    # Apply sorting
     if sort_type == "popular":
-        response = supabase.table("recipes").select("*").order("likes", desc=True).limit(limit).offset(offset).execute()
-        return response.data
+        query = query.order("likes", desc=True)
     elif sort_type == "newest":
-        response = supabase.table("recipes").select("*").order("created_at", desc=True).limit(limit).offset(offset).execute()
-        return response.data
+        query = query.order("created_at", desc=True)
     elif sort_type == "oldest":
-        response = supabase.table("recipes").select("*").order("created_at", desc=False).limit(limit).offset(offset).execute()
-        return response.data
+        query = query.order("created_at", desc=False)
     else:
         return {"error": "Invalid sort type"}
+    
+    # Apply pagination
+    query = query.limit(limit).offset(offset)
+    
+    # Execute the query
+    response = query.execute()
+    data = response.data
+
+    # Go through data and get the comments for each recipe
+    for recipe in data:
+        comments = get_comments(recipe["id"])
+        recipe["comments"] = comments
+
+    return data
+
+def get_comments(recipe_id: str):
+    response = supabase.table("comments").select("*").eq("recipe_id", recipe_id).execute()
+    return response.data
 
 def get_recipe(recipe_id: str):
     response = supabase.table("recipes").select("*").eq("id", recipe_id).execute()
@@ -94,6 +132,10 @@ def create_recipe(recipe: Recipe):
         return response.data
     except:
         return {"error": "Error inserting recipe"}
+
+def search_recipe(query: str):
+    response = supabase.table("recipes").select("*").ilike("title", f"%{query}%").execute()
+    return response.data
 
 def get_featured_recipes():
     response = supabase.table("recipes").select("*").eq("featured", True).execute()
