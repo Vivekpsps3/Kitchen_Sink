@@ -17,7 +17,6 @@ def get_all_products():
 def get_products(ingredient: str, minimum_amount: float):
     # Use ilike on both category and itemName to find partial matches
     response = supabase.table("products").select("*")\
-        .ilike("category", f"%{ingredient}%")\
         .ilike("itemName", f"%{ingredient}%")\
         .gt("unitAmountOz", minimum_amount).execute()
     if response.data:
