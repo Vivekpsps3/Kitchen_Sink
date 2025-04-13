@@ -66,7 +66,7 @@ export default async function Home() {
     const mockFeaturedMeals = [
       {
         id: "featured-1",
-        title: "Seasonal Harvest Bowl with Fresh Vegetables",
+        title: "Vegetarian Buddha Bowl",
         image:
           "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         chef: "Emma Rodriguez",
@@ -75,21 +75,21 @@ export default async function Home() {
       },
       {
         id: "featured-2",
-        title: "Artisanal Sourdough with Heirloom Tomato Bruschetta",
+        title: "Lion's Mane Basil Sandwich",
         image:
           "https://images.unsplash.com/photo-1639667870243-ec729a155145?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         chef: "Marco Olivetti",
         description:
-          "Handcrafted sourdough bread topped with heirloom tomatoes, fresh basil, and extra virgin olive oil. This simple yet elegant appetizer showcases the pure flavors of quality ingredients and traditional techniques.",
+          "Handcrafted sourdough bread topped with lion's mane, fresh basil, and extra virgin olive oil. This simple yet elegant appetizer showcases the pure flavors of quality ingredients and traditional techniques.",
       },
       {
         id: "featured-3",
-        title: "Farm-to-Table Seasonal Vegetable Platter",
+        title: "Garden-to-Table Pesto Farfalle",
         image:
           "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         chef: "Sophia Chen",
         description:
-          "A stunning arrangement of locally-sourced vegetables, perfectly roasted and seasoned to enhance their natural flavors. This versatile dish works beautifully as a main course or as a complement to any protein.",
+          "Freshly made pesto from home-grown basil, garlic, and pine nuts. Tossed with farfalle pasta and seasonal vegetables, this dish is a celebration of summer's bounty. Each bite is a burst of flavor, making it a perfect choice for any occasion.",
       },
     ]
 
@@ -104,37 +104,71 @@ export default async function Home() {
     const mockRecipes = [
       {
         id: "1",
-        title: "Classic Spaghetti Carbonara",
+        title: "Vegetarian Buddha Bowl",
         image:
           "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=2680&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        tags: ["Italian", "Pasta", "Quick"],
-        dietaryRestrictions: ["Egg-Free", "Nut-Free"],
+        tags: ["Healthy", "Quick", "Easy"],
+        dietaryRestrictions: ["Vegetarian", "Nut-Free"],
         rating: 4.8,
         commentCount: 24,
-        difficulty: "Intermediate",
+        difficulty: "Beginner",
       },
       {
         id: "2",
-        title: "Vegetarian Buddha Bowl",
+        title: "Lion's Mane Basil Sandwich",
         image:
           "https://images.unsplash.com/photo-1639667870243-ec729a155145?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        tags: ["Healthy", "Bowl"],
+        tags: ["Gourmet", "Healthy"],
         dietaryRestrictions: ["Vegetarian", "Gluten-Free"],
         rating: 4.5,
         commentCount: 18,
-        difficulty: "Beginner",
+        difficulty: "Intermediate",
       },
       {
         id: "3",
         title: "Chocolate Chip Cookies",
         image:
-          "https://images.unsplash.com/photo-1473093295043-cdd812d0e601?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "https://images.unsplash.com/photo-1625876981820-be17a6807189?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         tags: ["Dessert", "Baking", "Snack"],
         dietaryRestrictions: ["Nut-Free"],
         rating: 4.9,
         commentCount: 32,
         difficulty: "Beginner",
       },
+      {
+        id: "4",
+        title: "Traditional Spaghetti Carbonara",
+        image:
+          "https://images.unsplash.com/photo-1692071097529-320eb2b32292?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        tags: ["Italian", "Pasta", "Quick"],
+        dietaryRestrictions: ["Egg-Free", "Nut-Free"],
+        rating: 4.8,
+        commentCount: 39,
+        difficulty: "Intermediate",
+      },
+      {
+        id: "5",
+        title: "Classic Katsu Curry Don",
+        image:
+          "https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        tags: ["Healthy", "Bowl"],
+        dietaryRestrictions: ["Nut-Free"],
+        rating: 4.5,
+        commentCount: 45,
+        difficulty: "Advanced",
+      },
+      {
+        id: "6",
+        title: "Hearty English Breakfast",
+        image:
+          "https://images.unsplash.com/photo-1588625436591-c6d853288b60?q=80&w=1929&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        tags: ["Breakfast"],
+        dietaryRestrictions: ["Nut-Free"],
+        rating: 4.9,
+        commentCount: 13,
+        difficulty: "Beginner",
+      },
+
     ]
 
     // Add mock data to fill in if we have fewer than 6 recipes
