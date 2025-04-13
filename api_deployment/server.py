@@ -274,7 +274,7 @@ class Ingredient(BaseModel):
 class ShoppingListQuery(BaseModel):
     ingredients: list[Ingredient]
 
-@app.get("/shoppingList")
+@app.post("/shoppingList")
 async def shoppingList(shopping_list_query: ShoppingListQuery):
     """
     Get a shopping list based on the provided ingredients.
@@ -285,7 +285,7 @@ async def shoppingList(shopping_list_query: ShoppingListQuery):
     shopping_list = recipe_provider.generate_shopping_list_from_ingredients(list_of_ingredients)
     return shopping_list
 
-@app.get("/ingredients")
+@app.post("/ingredients")
 async def ingredients(ingredient_query: IngredientQuery):
     """
     Get ingredients from the database.
