@@ -150,10 +150,9 @@ export default async function Home() {
         {/* Hero Section with Search */}
         <section className="mb-12">
           <div className="text-center mb-8">
-            <h1 className="font-gaya text-4xl md:text-5xl mb-4">Discover Culinary Excellence</h1>
+            <h1 className="font-gaya text-4xl md:text-5xl mb-4">Meal Planning Made Easy</h1>
             <p className="font-matina text-lg text-gray-600 max-w-2xl mx-auto">
-              Explore thousands of professional recipes, create your own culinary masterpieces, and connect with
-              passionate food lovers.
+              Explore thousands of professional recipes, variety of difficulties for your novice cooks to the master chefs, and get your meals at the lowest costs.
             </p>
           </div>
 
@@ -173,7 +172,7 @@ export default async function Home() {
         {/* Featured Meals Carousel */}
         <section className="mb-16">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-gaya text-2xl md:text-3xl">Today's Featured Meals</h2>
+            <h2 className="font-gaya text-2xl md:text-3xl">Flavors of the week</h2>
             <a href="/featured" className="font-matina text-[#3cbbf1] hover:underline">
               View all
             </a>
