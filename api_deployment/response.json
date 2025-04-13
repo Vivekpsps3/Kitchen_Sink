@@ -1,0 +1,105 @@
+{
+  "title": "Recipe Request",
+  "content": {
+    "recipe": {
+      "title": "Burst Cherry Tomato and Pesto Pasta with Toasted Pine Nuts",
+      "cuisine": "Italian",
+      "tags": [
+        "vegetarian",
+        "quick",
+        "easy",
+        "pesto",
+        "pasta"
+      ],
+      "ingredients": [
+        {
+          "name": "Pasta",
+          "amount": "12",
+          "unit": "oz",
+          "notes": "Linguini or pasta shape of choice"
+        },
+        {
+          "name": "Cherry Tomatoes",
+          "amount": "1.5",
+          "unit": "lbs",
+          "notes": "Halved"
+        },
+        {
+          "name": "Pesto",
+          "amount": "1/2",
+          "unit": "cup",
+          "notes": "Homemade or store-bought, more to taste"
+        },
+        {
+          "name": "Pine Nuts",
+          "amount": "2",
+          "unit": "Tbsp",
+          "notes": null
+        },
+        {
+          "name": "Garlic",
+          "amount": "3",
+          "unit": "cloves",
+          "notes": "Crushed or minced"
+        },
+        {
+          "name": "Olive Oil",
+          "amount": "3",
+          "unit": "Tbsp",
+          "notes": "Divided"
+        },
+        {
+          "name": "Balsamic Vinegar",
+          "amount": "1",
+          "unit": "Tbsp",
+          "notes": null
+        },
+        {
+          "name": "Parmesan Cheese",
+          "amount": null,
+          "unit": null,
+          "notes": "Shaved or grated, for garnish"
+        },
+        {
+          "name": "Salt",
+          "amount": null,
+          "unit": "to taste",
+          "notes": null
+        },
+        {
+          "name": "Black Pepper",
+          "amount": null,
+          "unit": "to taste",
+          "notes": "Freshly cracked"
+        },
+         {
+          "name": "Red Pepper Flakes",
+          "amount": "Pinch",
+          "unit": null,
+          "notes": "Optional"
+        },
+        {
+          "name": "Fresh Basil",
+          "amount": null,
+          "unit": null,
+          "notes": "For garnish"
+        }
+      ],
+      "ingredient_sections": [],
+      "steps": [
+        "Bring a large pot of salted water to a boil. Add the pasta and cook according to package directions until al dente. Reserve 1/2 cup of pasta water before draining.",
+        "While the pasta cooks, toast the pine nuts in a teaspoon of olive oil over medium heat, stirring constantly until lightly golden. Remove from the pan and set aside.",
+        "In the same pan, heat the remaining olive oil over medium-high heat. Add the halved cherry tomatoes, garlic and red pepper flakes (if using). Sauté, shaking the pan occasionally, until the tomatoes begin to blister and burst, about 8-10 minutes.",
+        "Stir in the balsamic vinegar and simmer for 1 minute.",
+        "Drain the pasta and add it to the pan with the cherry tomato sauce. Toss to combine.",
+        "Stir in the pesto, adding a little reserved pasta water at a time until the sauce reaches your desired consistency.",
+        "Serve immediately, garnished with toasted pine nuts, shaved parmesan cheese, and fresh basil leaves."
+      ],
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 20,
+      "servings": 4,
+      "difficulty": "easy",
+      "notes": "For a richer flavor, roast the cherry tomatoes at 400°F (200°C) for 20 minutes before adding them to the pan."
+    }
+  }
+}

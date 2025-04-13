@@ -1,0 +1,44 @@
+{
+    "shopping_list": [
+        {
+            "ingredient": "All-Purpose Flour",
+            "quantity": "9 ounces",
+            "category": "Grains"
+        },
+        {
+            "ingredient": "Granulated Sugar",
+            "quantity": "7 ounces",
+            "category": "Baking & Sweeteners"
+        },
+        {
+            "ingredient": "Baking Powder",
+            "quantity": "0.18 ounce",
+            "category": "Baking & Sweeteners"
+        },
+        {
+            "ingredient": "Salt",
+            "quantity": "0.05 ounce",
+            "category": "Baking & Sweeteners"
+        },
+        {
+            "ingredient": "Unsalted Butter",
+            "quantity": "8 ounces",
+            "category": "Dairy"
+        },
+        {
+            "ingredient": "Milk",
+            "quantity": "4 ounces",
+            "category": "Dairy"
+        },
+        {
+            "ingredient": "Large Eggs",
+            "quantity": "2 eggs",
+            "category": "Produce"
+        },
+        {
+            "ingredient": "Vanilla Extract",
+            "quantity": "0.17 ounce",
+            "category": "Baking & Sweeteners"
+        }
+    ]
+}

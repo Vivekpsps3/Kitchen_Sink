@@ -135,7 +135,7 @@ def test_shopping_list():
     # Sample ingredient list
     # Load ingredients from the response JSON file
     try:
-        with open("response.json", "r") as f:
+        with open("../response.json", "r") as f:
             response_data = json.load(f)
         
         # Extract ingredients from all sections
@@ -254,7 +254,7 @@ def test_shopping_list():
 
 if __name__ == "__main__":
     # Get query from command line arguments if provided
-    query = sys.argv[1] if len(sys.argv) > 1 else "Vegetarian food for indian and italian lovers"
+    query = sys.argv[1] if len(sys.argv) > 1 else "Tasty Pesto Homemade Pasta"
     
     # Test health endpoint first
     health_status = test_health_endpoint()

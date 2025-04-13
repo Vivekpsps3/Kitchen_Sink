@@ -132,8 +132,8 @@ class RecipeProvider:
         3. Adds helpful notes for potentially confusing items
         4. Ensures quantities are clear and consistent
         5. Includes both the ingredient name and total amount needed
-        6. Ingredient quantities must be given in a clear format (e.g., "2 cups", "1 lb", etc.)
-        7. Use Common shopping list formats (e.g., "1 lb of chicken", "1 bag of flour(At least 5 lbs)")
+        6. Ingredient quantities must be given in ounces
+        7. You must convert to ounces if needed
         
         Format the response as a valid JSON object matching this structure:
         """
@@ -144,7 +144,7 @@ class RecipeProvider:
         
         # Generate the shopping list using Gemini
         response = self.client.models.generate_content(
-            model="gemini-2.5-pro",
+            model="gemini-2.0-flash",
             contents=prompt
         )
         response_text = response.text.strip()
