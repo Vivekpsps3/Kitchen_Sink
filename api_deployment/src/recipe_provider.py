@@ -129,7 +129,7 @@ class RecipeProvider:
         Please organize these ingredients into a shopping list that:
         1. Combines similar ingredients (e.g., if multiple items need milk, show the total amount)
         2. Groups ingredients by category (produce, dairy, grains, etc.)
-        3. Adds helpful notes for potentially confusing items
+        3. Do not include any extra text or explanations or superlatives - (Eg. Boneless chicken breast should just be Chicken breast)
         4. Ensures quantities are clear and consistent
         5. Includes both the ingredient name and total amount needed
         6. Ingredient quantities must be given in ounces
