@@ -56,7 +56,13 @@ interface PriceComparison {
     brand: string;
     price: number;
     quantity: string;
+    checked?: boolean;
   }>;
+}
+
+interface FailedItem {
+  name: string;
+  checked: boolean;
 }
 
 export default function ShoppingListPage() {
@@ -70,6 +76,7 @@ export default function ShoppingListPage() {
     []
   );
   const [fetchingPrices, setFetchingPrices] = useState(false);
+  const [failedItems, setFailedItems] = useState<FailedItem[]>([]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -348,6 +355,23 @@ export default function ShoppingListPage() {
     );
   };
 
+  // Add function to toggle store item checked state
+  const toggleStoreItemChecked = (storeIndex: number, itemIndex: number) => {
+    setPriceComparisons((prev) => {
+      const newComparisons = [...prev];
+      const items = [...newComparisons[storeIndex].items];
+      items[itemIndex] = {
+        ...items[itemIndex],
+        checked: !items[itemIndex].checked
+      };
+      newComparisons[storeIndex] = {
+        ...newComparisons[storeIndex],
+        items
+      };
+      return newComparisons;
+    });
+  };
+
   const addCustomItem = () => {
     if (!newItem.trim()) return;
 
@@ -394,6 +418,7 @@ export default function ShoppingListPage() {
     if (shoppingList.length === 0) return;
 
     setFetchingPrices(true);
+    setFailedItems([]); // Reset failed items
 
     try {
       // Step 1: Transform shopping list for the API call
@@ -429,6 +454,7 @@ export default function ShoppingListPage() {
 
       // Step 3: For each item in the response, query /ingredients
       const storeComparisons: Record<string, PriceComparison> = {};
+      const failedItemsList: string[] = [];
 
       for (const item of shoppingListData.shopping_list) {
         // Convert quantity to amount for the /ingredients endpoint
@@ -440,64 +466,57 @@ export default function ShoppingListPage() {
 
         console.log(ingredientRequest);
 
-        const ingredientResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/ingredients`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(ingredientRequest),
-          }
-        );
-
-        console.log(ingredientResponse);
-
-        if (!ingredientResponse.ok) {
-          console.error(`Failed to fetch prices for ${item.ingredient}`);
-          // Hit /fetchIngredients endpoint with this as the body
-          // product_name: str
-          // zip_code: "47906"
-          // const fetchIngredientsResponse = await fetch(
-          //   `${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/scrapeIngredients`,
-          //   {
-          //     method: "POST",
-          //     headers: {
-          //       "Content-Type": "application/json",
-          //     },
-          //     body: JSON.stringify({
-          //       product_name: item.ingredient,
-          //       zip_code: "47906",
-          //     }),
-          //   }
-          // );
-          // console.log(fetchIngredientsResponse);
-          continue;
-        }
-
-        const priceData = await ingredientResponse.json();
-
-        // Process each store's price data
-        Object.entries(priceData).forEach(
-          ([store, storeData]: [string, any]) => {
-            if (!storeComparisons[store]) {
-              storeComparisons[store] = {
-                store,
-                price: 0,
-                items: [],
-              };
+        try {
+          const ingredientResponse = await fetch(
+            `${process.env.NEXT_PUBLIC_KITCHEN_SINK_REST_URL}/ingredients`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(ingredientRequest),
             }
+          );
 
-            storeComparisons[store].price += storeData.price;
-            storeComparisons[store].items.push({
-              name: storeData.itemName,
-              brand: storeData.brand,
-              price: storeData.price,
-              quantity: `${storeData.unitAmountOz} oz`,
-            });
+          console.log(ingredientResponse);
+
+          if (!ingredientResponse.ok) {
+            console.error(`Failed to fetch prices for ${item.ingredient}`);
+            failedItemsList.push(item.ingredient);
+            continue;
           }
-        );
+
+          const priceData = await ingredientResponse.json();
+
+          // Process each store's price data
+          Object.entries(priceData).forEach(
+            ([store, storeData]: [string, any]) => {
+              if (!storeComparisons[store]) {
+                storeComparisons[store] = {
+                  store,
+                  price: 0,
+                  items: [],
+                };
+              }
+
+              storeComparisons[store].price += storeData.price;
+              storeComparisons[store].items.push({
+                name: storeData.itemName,
+                brand: storeData.brand,
+                price: storeData.price,
+                quantity: `${storeData.unitAmountOz} oz`,
+                checked: false,
+              });
+            }
+          );
+        } catch (error) {
+          console.error(`Error fetching ${item.ingredient}:`, error);
+          failedItemsList.push(item.ingredient);
+        }
       }
+
+      // Update failed items state
+      setFailedItems(failedItemsList.map(item => ({ name: item, checked: false })));
 
       // Convert store comparisons to array and sort by price
       const comparisons = Object.values(storeComparisons).sort(
@@ -521,6 +540,61 @@ export default function ShoppingListPage() {
     return shoppingList.some((item) => item.recipeId === recipeId);
   };
 
+  // Add a function to remove a store from comparisons
+  const removeStore = (storeIndex: number) => {
+    setPriceComparisons((prev) => {
+      const newComparisons = [...prev];
+      newComparisons.splice(storeIndex, 1);
+      
+      // Update cheapest store if needed
+      if (newComparisons.length > 0) {
+        const cheapestStore = newComparisons.reduce((min, current) => 
+          current.price < min.price ? current : min, newComparisons[0]);
+        setCheapestStore(cheapestStore.store);
+        setStorePrice(cheapestStore.price);
+      } else {
+        setCheapestStore(null);
+        setStorePrice(null);
+      }
+      
+      return newComparisons;
+    });
+  };
+
+  // Add a function to remove a store item
+  const removeStoreItem = (storeIndex: number, itemIndex: number) => {
+    setPriceComparisons((prev) => {
+      const newComparisons = [...prev];
+      const store = { ...newComparisons[storeIndex] };
+      
+      // Remove the item and calculate new price
+      const removedItem = store.items[itemIndex];
+      store.price -= removedItem.price;
+      store.items = store.items.filter((_, idx) => idx !== itemIndex);
+      
+      newComparisons[storeIndex] = store;
+      
+      // Update cheapest store if needed
+      if (newComparisons.length > 0) {
+        const cheapestStore = newComparisons.reduce((min, current) => 
+          current.price < min.price ? current : min, newComparisons[0]);
+        setCheapestStore(cheapestStore.store);
+        setStorePrice(cheapestStore.price);
+      }
+      
+      return newComparisons;
+    });
+  };
+
+  // Add toggle function for failed items
+  const toggleFailedItemChecked = (index: number) => {
+    setFailedItems(prev => 
+      prev.map((item, idx) => 
+        idx === index ? { ...item, checked: !item.checked } : item
+      )
+    );
+  };
+
   return (
     <>
       <Navbar
@@ -535,8 +609,8 @@ export default function ShoppingListPage() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Column - Liked Recipes */}
-          <div className="lg:w-1/2">
-            <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="lg:w-1/2 relative">
+            <div className="bg-white rounded-lg shadow-md p-6 sticky top-20 z-10 max-h-[calc(100vh-10rem)] overflow-y-auto" id="liked-recipes">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-gaya text-2xl">Liked Recipes</h2>
                 <div className="relative">
@@ -678,27 +752,15 @@ export default function ShoppingListPage() {
               </div>
 
               {shoppingList.length > 0 ? (
-                <div className="space-y-2 mb-6">
+                <ul className="space-y-1 mb-6 list-none">
                   {shoppingList.map((item) => (
-                    <div
+                    <li
                       key={item.id}
-                      className="flex items-center justify-between py-2 border-b border-gray-100"
+                      className="flex items-center justify-between py-1.5"
                     >
                       <div className="flex items-center">
-                        <button
-                          onClick={() => toggleItemChecked(item.id)}
-                          className={`h-5 w-5 rounded border flex items-center justify-center mr-3 ${
-                            item.checked
-                              ? "bg-[#32c94e] border-[#32c94e] text-white"
-                              : "border-gray-300"
-                          }`}
-                        >
-                          {item.checked && <Check className="h-3 w-3" />}
-                        </button>
                         <span
-                          className={`font-matina ${
-                            item.checked ? "line-through text-gray-400" : ""
-                          }`}
+                          className={item.checked ? "line-through text-gray-400" : ""}
                         >
                           {item.amount && `${item.amount} `}
                           {item.unit &&
@@ -713,9 +775,9 @@ export default function ShoppingListPage() {
                       >
                         <X className="h-4 w-4" />
                       </button>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
               ) : (
                 <div className="text-center py-8 mb-6">
                   <p className="font-matina">Your shopping list is empty.</p>
@@ -761,7 +823,7 @@ export default function ShoppingListPage() {
           </div>
         </div>
 
-        {/* Price Comparison Section - Separate full-width section */}
+        {/* Price Comparison Section - Updated with row checkboxes */}
         {cheapestStore && (
           <div className="mt-8 p-6 bg-white rounded-lg shadow-md w-full">
             <div className="text-center mb-6">
@@ -797,19 +859,28 @@ export default function ShoppingListPage() {
                               : "bg-gray-200"
                         }`}
                       >
-                        <div className="flex flex-col">
-                          <p className="font-matina font-bold text-xl">
+                        <div className="flex gap-2">
+                          <p className="font-matina font-bold text-2xl">
                             {comparison.store}
                           </p>
                           {index === 0 && (
-                            <span className="mt-1 text-xs text-[#32c94e] bg-[#32c94e]/10 px-2 py-0.5 rounded-full inline-block">
+                            <span className="flex items-center text-xs text-black font-gaya bg-[#ffdf00] px-2 pt-0.5 rounded-full text-center shadow-md border border-gray-300">
                               Best Price
                             </span>
                           )}
                         </div>
-                        <p className="font-gaya font-bold text-3xl">
-                          ${comparison.price.toFixed(2)}
-                        </p>
+                        <div className="flex items-center gap-3">
+                          <p className="font-gaya font-bold text-3xl">
+                            ${comparison.price.toFixed(2)}
+                          </p>
+                          <button 
+                            onClick={() => removeStore(index)}
+                            className="text-[#e80b07] hover:text-[#c70906] p-1 rounded-full hover:bg-red-50 transition-colors"
+                            aria-label="Remove store"
+                          >
+                            <X className="h-5 w-5" />
+                          </button>
+                        </div>
                       </div>
                       
                       {/* Items list in a separate card */}
@@ -820,27 +891,116 @@ export default function ShoppingListPage() {
                             ? "bg-blue-50"
                             : "bg-gray-50"
                       }`}>
-                        <div className="space-y-2">
+                        <ul className="space-y-0.5">
                           {comparison.items.map((item, itemIndex) => (
-                            <div
+                            <li
                               key={itemIndex}
-                              className="flex justify-between text-sm"
+                              className="flex justify-between items-center p-1.5 rounded hover:bg-white/50 transition-colors"
                             >
-                              <p>
-                                {item.brand} {item.name} ({item.quantity})
-                              </p>
-                              <p className="font-gaya text-lg">
-                                ${item.price.toFixed(2)}
-                              </p>
-                            </div>
+                              <div className="flex items-center flex-1 cursor-pointer" 
+                                onClick={() => toggleStoreItemChecked(index, itemIndex)}>
+                                <div className={`h-4 w-4 rounded border flex items-center justify-center mr-2 ${
+                                  item.checked
+                                    ? "bg-[#32c94e] border-[#32c94e] text-white"
+                                    : "border-gray-300"
+                                }`}>
+                                  {item.checked && <Check className="h-2.5 w-2.5" />}
+                                </div>
+                                <p className={`text-sm ${item.checked ? "line-through text-gray-400" : ""}`}>
+                                  {item.brand} {item.name} ({item.quantity})
+                                </p>
+                              </div>
+                              <div className="flex items-center">
+                                <p className={`font-gaya text-base mr-2 ${item.checked ? "line-through text-gray-400" : ""}`}>
+                                  ${item.price.toFixed(2)}
+                                </p>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeStoreItem(index, itemIndex);
+                                  }}
+                                  className="text-[#e80b07] hover:text-[#c70906] p-1 rounded-full hover:bg-red-50 transition-colors"
+                                  aria-label="Remove item"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </li>
                           ))}
-                        </div>
+                        </ul>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+          </div>
+        )}
+        
+        {/* Not in Database Section */}
+        {failedItems.length > 0 && (
+          <div className="mt-8 p-6 bg-white rounded-lg shadow-md w-full">
+            <div className="text-center mb-6">
+              <h3 className="font-gaya text-2xl mb-4">
+                Not Found in Database
+              </h3>
+              <p className="font-matina text-gray-600">
+                These items couldn't be found in our price database.
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <div className="rounded-md md:rounded-lg bg-gray-200 p-4 mb-2 shadow-sm">
+                <div className="flex gap-2">
+                  <p className="font-matina font-bold text-2xl text-gray-700">
+                    Missing Items
+                  </p>
+                </div>
+              </div>
+              
+              <div className="p-4 rounded-md md:rounded-lg bg-gray-50">
+                <ul className="space-y-0.5">
+                  {failedItems.slice(0, 3).map((item, index) => (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center p-1.5 rounded hover:bg-white/70 transition-colors"
+                    >
+                      <div className="flex items-center flex-1 cursor-pointer" 
+                        onClick={() => toggleFailedItemChecked(index)}>
+                        <div className={`h-4 w-4 rounded border flex items-center justify-center mr-2 ${
+                          item.checked
+                            ? "bg-[#32c94e] border-[#32c94e] text-white"
+                            : "border-gray-300"
+                        }`}>
+                          {item.checked && <Check className="h-2.5 w-2.5" />}
+                        </div>
+                        <p className={`text-sm ${item.checked ? "line-through text-gray-400" : "text-gray-700"}`}>
+                          {item.name}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setFailedItems(prev => prev.filter((_, idx) => idx !== index));
+                        }}
+                        className="text-[#e80b07] hover:text-[#c70906] p-1 rounded-full hover:bg-red-50 transition-colors"
+                        aria-label="Remove item"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Show count of additional items if more than 3 */}
+                {failedItems.length > 3 && (
+                  <div className="mt-2 text-center">
+                    {/* <p className="text-sm text-gray-500">
+                      +{failedItems.length - 3} more missing items
+                    </p> */}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
