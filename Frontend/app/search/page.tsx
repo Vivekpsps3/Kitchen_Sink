@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Heart, IceCreamCone, Salad, Clock, Carrot, Beef, Fish, Search, Wand2, Sunrise, Sun, MoonStar } from "lucide-react"
+import { Heart, IceCreamCone, Salad, Clock, Carrot, Beef, Fish, Search, Wand2, Sunrise, Sun, MoonStar, Sparkle, X } from "lucide-react"
 import RecipeCard from "@/components/recipe-card"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
@@ -65,6 +65,10 @@ export default function SearchPage() {
   const [toastMessage, setToastMessage] = useState('')
   const [showToast, setShowToast] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [showGenerateModal, setShowGenerateModal] = useState(false)
+  const [generatingRecipe, setGeneratingRecipe] = useState(false)
+  const [termsAgreed, setTermsAgreed] = useState(false)
+  const [generationPrompt, setGenerationPrompt] = useState("")
   const supabase = createClient()
 
   const categories: Category[] = [
@@ -291,6 +295,80 @@ export default function SearchPage() {
 
   const filteredRecipes = filterRecipes()
 
+  const handleGenerateRecipe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!termsAgreed) {
+      setToastMessage("Please agree to the terms before generating a recipe")
+      setShowToast(true)
+      return
+    }
+    
+    setGeneratingRecipe(true)
+    
+    try {
+      // Build the query string with filters
+      let queryText = generationPrompt || searchTerm
+      
+      // Add category filter if selected (except 'liked')
+      if (selectedCategory && selectedCategory !== 'liked') {
+        queryText = `${queryText} ${selectedCategory}`.trim()
+      }
+      
+      // Add difficulty filter if selected
+      if (selectedDifficulty) {
+        queryText = `${queryText} ${selectedDifficulty} difficulty`.trim()
+      }
+      
+      // Add time filter if selected
+      if (selectedTime) {
+        queryText = `${queryText} ${selectedTime}`.trim()
+      }
+      
+      // Add diet filter if selected
+      if (selectedDiet) {
+        queryText = `${queryText} ${selectedDiet}`.trim()
+      }
+      
+      console.log("Generating recipe with query:", queryText)
+      
+      // Make API call
+      const response = await fetch('http://localhost:8000/generate-recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: queryText }),
+      })
+      
+      console.log("Response status:", response.status)
+      
+      const responseData = await response.json()
+      console.log("Response data:", responseData)
+      
+      if (!response.ok) {
+        const errorMessage = responseData.detail?.error || responseData.detail || 'Failed to generate recipe'
+        throw new Error(errorMessage)
+      }
+      
+      setToastMessage("Recipe generated successfully!")
+      setShowToast(true)
+      
+      // // On success, refresh the page after a brief delay
+      // setTimeout(() => {
+      //   window.location.reload()
+      // }, 1500)
+      
+    } catch (error) {
+      console.error('Error generating recipe:', error)
+      setToastMessage(error instanceof Error ? error.message : 'Failed to generate recipe')
+      setShowToast(true)
+    } finally {
+      setGeneratingRecipe(false)
+      setShowGenerateModal(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#fff8e7]">
       <Navbar showSearch={false} />
@@ -299,6 +377,74 @@ export default function SearchPage() {
         isVisible={showToast} 
         onClose={() => setShowToast(false)} 
       />}
+      
+      {/* Generate Recipe Modal */}
+      {showGenerateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 relative">
+            <button 
+              onClick={() => setShowGenerateModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            <h3 className="font-gaya text-2xl mb-4">Generate Recipe</h3>
+            
+            <form onSubmit={handleGenerateRecipe}>
+              <div className="mb-4">
+                <label htmlFor="prompt" className="block font-matina text-gray-700 mb-2">
+                  Describe what kind of recipe you want:
+                </label>
+                <textarea
+                  id="prompt"
+                  value={generationPrompt || searchTerm}
+                  onChange={(e) => setGenerationPrompt(e.target.value)}
+                  placeholder="e.g. A healthy vegetarian pasta dish with spinach and mushrooms"
+                  className="w-full p-3 border border-gray-300 rounded-lg font-matina"
+                  rows={4}
+                />
+              </div>
+              
+              <div className="mb-6">
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={termsAgreed}
+                    onChange={(e) => setTermsAgreed(e.target.checked)}
+                    className="mt-1"
+                    required
+                  />
+                  <span className="font-matina text-gray-700 text-sm">
+                    Our terms require recipe specifications to be high quality.
+                  </span>
+                </label>
+              </div>
+              
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowGenerateModal(false)}
+                  className="px-4 py-2 mr-2 font-matina text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={generatingRecipe || !termsAgreed}
+                  className={`bg-[#32c94e] hover:bg-[#2bb045] text-white font-matina px-6 py-2 rounded-lg flex items-center gap-2 ${
+                    generatingRecipe || !termsAgreed ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {generatingRecipe ? 'Generating...' : 'Generate Recipe'}
+                  <Sparkle className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      
       <div className="container mx-auto px-4 pt-24">
         {/* Search Header - Removed the search input since it's now in the navbar */}
         <div className="max-w-3xl mx-auto mb-10">
@@ -358,37 +504,47 @@ export default function SearchPage() {
           <div className="text-center py-12">
             <p className="font-matina text-lg">Loading recipes...</p>
           </div>
-        ) : filteredRecipes.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRecipes.map((recipe) => (
-              <RecipeCard 
-                key={recipe.id} 
-                id={recipe.id}
-                title={recipe.title}
-                image={recipe.image_url || "/placeholder.svg"}
-                tags={Array.isArray(recipe.tags) ? recipe.tags : []}
-                rating={recipe.rating || 0}
-                commentCount={recipe.comments?.length || 0}
-                difficulty={recipe.difficulty || 'Intermediate'}
-                dietaryRestrictions={recipe.dietaryRestrictions || []}
-              />
-            ))}
-          </div>
         ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow-md">
-            <h3 className="font-gaya text-xl mb-2">
-              {filterParam === 'liked' ? 'No liked recipes yet' : 'No recipes found'}
-            </h3>
-            <p className="font-matina text-gray-600 mb-6">
-              {filterParam === 'liked' 
-                ? 'Start liking recipes to see them here.'
-                : 'Try adjusting your search or filters to find what you\'re looking for.'}
-            </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-matina px-8 py-3 rounded-full flex items-center gap-2 mx-auto transition-colors">
-              <Wand2 className="h-5 w-5" />
-              Generate Recipe
-            </button>
-          </div>
+          <>
+            {filteredRecipes.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredRecipes.map((recipe) => (
+                  <RecipeCard 
+                    key={recipe.id} 
+                    id={recipe.id}
+                    title={recipe.title}
+                    image={recipe.image_url || "/placeholder.svg"}
+                    tags={Array.isArray(recipe.tags) ? recipe.tags : []}
+                    rating={recipe.rating || 0}
+                    commentCount={recipe.comments?.length || 0}
+                    difficulty={recipe.difficulty || 'Intermediate'}
+                    dietaryRestrictions={recipe.dietaryRestrictions || []}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 bg-white rounded-lg shadow-md">
+                <h3 className="font-gaya text-xl mb-2">
+                  {filterParam === 'liked' ? 'No liked recipes yet' : 'No recipes found'}
+                </h3>
+                <p className="font-matina text-gray-600 mb-6">
+                  {filterParam === 'liked' 
+                    ? 'Start liking recipes to see them here.'
+                    : 'Try adjusting your search or filters to find what you\'re looking for.'}
+                </p>
+              </div>
+            )}
+            
+            <div className="text-center pt-8 pb-12 mt-6">
+              <button 
+                onClick={() => setShowGenerateModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-matina px-8 py-3 flex items-center gap-2 mx-auto transition-colors shadow-md"
+              >
+                <Sparkle className="h-5 w-5" />
+                Curate Custom Recipe
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
