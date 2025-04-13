@@ -9,6 +9,7 @@ class RecipeScraper:
     
     def _find_recipe_links(self, query):
         search_query = f"{query} recipe"
+        print(f"Searching for {search_query}")
         return list(search(search_query, num_results=self.num_results))
     
     def _extract_recipe_details(self, url):

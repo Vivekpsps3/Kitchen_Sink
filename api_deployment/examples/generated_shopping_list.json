@@ -1,44 +1,59 @@
 {
     "shopping_list": [
         {
-            "ingredient": "All-Purpose Flour",
-            "quantity": "9 ounces",
-            "category": "Grains"
-        },
-        {
-            "ingredient": "Granulated Sugar",
-            "quantity": "7 ounces",
-            "category": "Baking & Sweeteners"
-        },
-        {
-            "ingredient": "Baking Powder",
-            "quantity": "0.18 ounce",
-            "category": "Baking & Sweeteners"
-        },
-        {
-            "ingredient": "Salt",
-            "quantity": "0.05 ounce",
-            "category": "Baking & Sweeteners"
-        },
-        {
-            "ingredient": "Unsalted Butter",
-            "quantity": "8 ounces",
-            "category": "Dairy"
-        },
-        {
-            "ingredient": "Milk",
-            "quantity": "4 ounces",
-            "category": "Dairy"
-        },
-        {
-            "ingredient": "Large Eggs",
-            "quantity": "2 eggs",
+            "ingredient": "Cherry Tomatoes",
+            "quantity": "11.3 oz",
             "category": "Produce"
         },
         {
-            "ingredient": "Vanilla Extract",
-            "quantity": "0.17 ounce",
-            "category": "Baking & Sweeteners"
+            "ingredient": "Garlic",
+            "quantity": "0.5 oz",
+            "category": "Produce"
+        },
+        {
+            "ingredient": "Fresh Basil Leaves",
+            "quantity": "1.5 oz",
+            "category": "Produce"
+        },
+        {
+            "ingredient": "Lemon",
+            "quantity": "0.5 lemon",
+            "category": "Produce"
+        },
+        {
+            "ingredient": "Extra Virgin Olive Oil",
+            "quantity": "2.7 oz",
+            "category": "Pantry"
+        },
+        {
+            "ingredient": "Kosher Salt",
+            "quantity": "0.125 oz",
+            "category": "Pantry"
+        },
+        {
+            "ingredient": "Black Pepper",
+            "quantity": "0.02 oz",
+            "category": "Pantry"
+        },
+        {
+            "ingredient": "Red Pepper Flakes",
+            "quantity": "pinch",
+            "category": "Pantry"
+        },
+        {
+            "ingredient": "Blanched Almonds, Lightly Toasted",
+            "quantity": "1 oz",
+            "category": "Pantry"
+        },
+        {
+            "ingredient": "Parmesan Cheese, Grated",
+            "quantity": "1.3 oz",
+            "category": "Dairy"
+        },
+        {
+            "ingredient": "Linguine or Spaghetti (whole grain or regular)",
+            "quantity": "16 oz",
+            "category": "Grains"
         }
     ]
 }

@@ -56,7 +56,6 @@ async def generate_recipe(recipe_query: RecipeQuery):
     try:
         # Generate recipe based on the query
         recipe_content = recipe_provider.generate_recipe_for_query(recipe_query.query)
-        
         # Process the response - either parse JSON string or use dict directly
         if isinstance(recipe_content, str):
             try:
@@ -102,8 +101,8 @@ async def generate_recipe(recipe_query: RecipeQuery):
             recipe_data["content"] = str(recipe_data["content"])
         # Ensure the title is a string
         if not isinstance(recipe_data["title"], str):
-            recipe_data["title"] = str(recipe_data["title"])        
-        # Return the formatted recipe
+            recipe_data["title"] = str(recipe_data["title"])    
+
         return recipe_data
     
     except json.JSONDecodeError as e:
