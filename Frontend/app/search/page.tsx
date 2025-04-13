@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Heart, Coffee, Utensils, Cake, Salad, Clock, Carrot, Beef, Fish, Sandwich, Search, Wand2 } from "lucide-react"
+import { Heart, IceCreamCone, Salad, Clock, Carrot, Beef, Fish, Search, Wand2, Sunrise, Sun, MoonStar } from "lucide-react"
 import RecipeCard from "@/components/recipe-card"
 import Navbar from "@/components/navbar"
 import { createClient } from "@/lib/supabase/client"
@@ -11,7 +11,6 @@ import { useSearchParams } from "next/navigation"
 
 interface Category {
   id: string
-  name: string
   icon: React.ReactNode
 }
 
@@ -28,46 +27,16 @@ export default function SearchPage() {
   const supabase = createClient()
 
   const categories: Category[] = [
-    {
-      id: "liked",
-      name: "Liked Recipes",
-      icon: (
-        <Heart
-          className={`h-6 w-6 ${
-            selectedCategory === "liked" ? "text-white" : "text-pink-500"
-          }`}
-        />
-      ),
-    },
-    {
-      id: "quick",
-      name: "Quick & Easy",
-      icon: (
-        <Clock
-          className={`h-6 w-6 ${
-            selectedCategory === "quick" ? "text-white" : "text-yellow-500"
-          }`}
-        />
-      ),
-    },
-    {
-      id: "healthy",
-      name: "Healthy",
-      icon: (
-        <Carrot
-          className={`h-6 w-6 ${
-            selectedCategory === "healthy" ? "text-white" : "text-orange-500"
-          }`}
-        />
-      ),
-    },
-    { id: "breakfast", name: "Breakfast", icon: <Coffee className="h-6 w-6" /> },
-    { id: "lunch", name: "Lunch", icon: <Sandwich className="h-6 w-6" /> },
-    { id: "dinner", name: "Dinner", icon: <Utensils className="h-6 w-6" /> },
-    { id: "dessert", name: "Dessert", icon: <Cake className="h-6 w-6" /> },
-    { id: "vegetarian", name: "Vegetarian", icon: <Salad className="h-6 w-6" /> },
-    { id: "meat", name: "Meat", icon: <Beef className="h-6 w-6" /> },
-    { id: "seafood", name: "Seafood", icon: <Fish className="h-6 w-6" /> },
+    { id: "liked", icon: <Heart className="h-6 w-6 text-pink-500" /> },
+    { id: "quick & easy", icon: <Clock className="h-6 w-6" /> },
+    { id: "healthy", icon: <Carrot className="h-6 w-6" /> },
+    { id: "vegetarian", icon: <Salad className="h-6 w-6" /> },
+    { id: "meat", icon: <Beef className="h-6 w-6" /> },
+    { id: "seafood", icon: <Fish className="h-6 w-6" /> },
+    { id: "breakfast", icon: <Sunrise className="h-6 w-6" /> },
+    { id: "lunch", icon: <Sun className="h-6 w-6" /> },
+    { id: "dinner", icon: <MoonStar className="h-6 w-6" /> },
+    { id: "dessert", icon: <IceCreamCone className="h-6 w-6" /> },
   ]
 
   // Update searchTerm when URL changes
@@ -147,6 +116,11 @@ export default function SearchPage() {
     <div className="min-h-screen bg-[#fff8e7]">
       <Navbar showSearch={false} />
       <div className="container mx-auto px-4 pt-24">
+        {/* Search Header - Removed the search input since it's now in the navbar */}
+        <div className="max-w-3xl mx-auto mb-10">
+          <h1 className="font-gaya text-3xl md:text-4xl text-center mb-6 mt-4">Find Your Perfect Recipe</h1>
+        </div>
+
         {/* Search Bar Section */}
         <section className="mb-12">
           <div className="max-w-2xl mx-auto relative">
@@ -163,38 +137,29 @@ export default function SearchPage() {
           </div>
         </section>
 
-        {/* Search Header - Removed the search input since it's now in the navbar */}
-        <div className="max-w-3xl mx-auto mb-10">
-          <h1 className="font-gaya text-3xl md:text-4xl text-center mb-6">Find Your Perfect Recipe</h1>
-        </div>
-
         {/* Categories */}
-        <div className="mb-10 overflow-x-auto pb-4">
-          <div className="flex space-x-4 px-4 min-w-max mx-auto md:justify-center">
+        <div className="mt-5 mb-5 overflow-y-hidden pt-3 pb-8">
+          <div className="flex gap-4 px-4 w-full mx-auto md:justify-center">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => toggleCategory(category.id)}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg min-w-[100px] transition-all ${
-                  selectedCategory === category.id
-                    ? category.id === "liked"
-                      ? "bg-pink-500 text-white shadow-md"
-                      : category.id === "quick"
-                      ? "bg-yellow-500 text-white shadow-md"
-                      : category.id === "healthy"
-                      ? "bg-orange-500 text-white shadow-md"
-                      : "bg-[#32c94e] text-white shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-100 shadow"
-                }`}
+                className="relative flex flex-col items-center justify-center transition-all group"
               >
                 <div
-                  className={`p-3 rounded-full mb-2 ${
-                    selectedCategory === category.id ? "bg-white/20" : "bg-[#fff8e7]"
-                  }`}
+                  className={`p-3 rounded-full border ${
+                    selectedCategory === category.id ? "border-[#32c94e]" : "border-gray-300"
+                  } bg-white hover:shadow-md`}
                 >
                   {category.icon}
                 </div>
-                <span className="font-matina text-sm whitespace-nowrap">{category.name}</span>
+                <span
+                  className={`mt-2.5 text-sm text-gray-700 absolute top-full transition-opacity ${
+                    selectedCategory === category.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  {category.id.charAt(0).toUpperCase() + category.id.slice(1)}
+                </span>
               </button>
             ))}
           </div>
