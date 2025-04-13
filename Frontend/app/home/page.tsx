@@ -75,12 +75,12 @@ export default async function Home() {
       },
       {
         id: "featured-2",
-        title: "Lion's Mane Basil Sandwich",
+        title: "Lion's Mane and Tomato on Toast",
         image:
           "https://images.unsplash.com/photo-1639667870243-ec729a155145?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         chef: "Marco Olivetti",
         description:
-          "Handcrafted sourdough bread topped with lion's mane, fresh basil, and extra virgin olive oil. This simple yet elegant appetizer showcases the pure flavors of quality ingredients and traditional techniques.",
+          "Handcrafted sourdough bread topped with lion's mane, sundried tomatoes, and extra virgin olive oil. This simple yet elegant appetizer showcases the pure flavors of quality ingredients and traditional techniques.",
       },
       {
         id: "featured-3",
@@ -115,7 +115,7 @@ export default async function Home() {
       },
       {
         id: "2",
-        title: "Lion's Mane Basil Sandwich",
+        title: "Lion's Mane and Tomato on Toast",
         image:
           "https://images.unsplash.com/photo-1639667870243-ec729a155145?q=80&w=2487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         tags: ["Gourmet", "Healthy"],
