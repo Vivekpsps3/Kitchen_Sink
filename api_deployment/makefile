@@ -11,4 +11,4 @@ make-dependencies:
 	pip freeze > requirements.txt
 
 deploy:
-	python -m uvicorn server:app --host 0.0.0.0 --port 8001
+	python -m uvicorn server:app --host 0.0.0.0 --port 8000
