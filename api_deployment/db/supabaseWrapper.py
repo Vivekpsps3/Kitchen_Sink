@@ -21,17 +21,13 @@ def get_products(ingredient: str, minimum_amount: float):
         .ilike("itemName", f"%{ingredient}%")\
         .gt("unitAmountOz", minimum_amount).execute()
     if response.data:
-        # Select the most cost effective product by calculating unitAmountOz / price
-        for product in response.data:
-            product["unitCost"] = product["price"] / product["unitAmountOz"]
-
-        # Return one product with the lowest unit cost per provider
+        # Return one product with the lowest cost per provider
         product_list = {}
         for product in response.data:
             if product["provider"] not in product_list:
                 product_list[product["provider"]] = product
             else:
-                if product["unitCost"] < product_list[product["provider"]]["unitCost"]:
+                if product["price"] < product_list[product["provider"]]["price"]:
                     product_list[product["provider"]] = product
         return product_list
     else:
