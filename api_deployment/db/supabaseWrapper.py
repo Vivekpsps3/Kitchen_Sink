@@ -81,15 +81,12 @@ def get_recipes(sort_type: str, limit: int, offset: int, search: str = None):
     return data
 
 def get_comments(recipe_id: str):
+    recipe_id = int(recipe_id)
     response = supabase.table("comments").select("*").eq("recipe_id", recipe_id).execute()
     return response.data
 
 def get_recipe(recipe_id: str):
     response = supabase.table("recipes").select("*").eq("id", recipe_id).execute()
-    if response.data:
-        # Get the comments for the recipe
-        comments = get_comments(recipe_id)
-        response.data["comments"] = comments
     return response.data
 
 def create_product(product: Product):
