@@ -1,4 +1,4 @@
-import { Search } from "lucide-react"
+import { Search, Sparkle } from "lucide-react"
 import RecipeCard, { RecipeCardProps } from "@/components/recipe-card"
 import FeaturedCarousel from "@/components/featured-carousel"
 import { getRecipes, getFeaturedRecipes } from "@/lib/supabase/recipes"
@@ -211,7 +211,10 @@ export default async function Home() {
         {/* Hero Section with Search */}
         <section className="mb-12">
           <div className="text-center mb-8">
-            <h1 className="font-gaya text-4xl md:text-5xl mb-4">Meal Planning Made Easy</h1>
+            <span className="relative inline-block">
+              <h1 className="font-gaya text-4xl md:text-5xl mb-4">Meal Planning Made Easy</h1>
+              <Sparkle className="text-4xl text-yellow-400 absolute top-[-15.2px] right-[-32px] h-[40px] w-[40px] rotate-[4deg]" />
+            </span>
             <p className="font-matina text-lg text-gray-600 max-w-2xl mx-auto">
               Explore thousands of professional recipes, variety of difficulties for your novice cooks to the master chefs, and get your meals at the lowest costs.
             </p>
@@ -267,7 +270,16 @@ export default async function Home() {
                   href={`/search?category=${category.toLowerCase().replace(" & ", "-")}`}
                   className="bg-white rounded-lg p-6 text-center shadow-md hover:shadow-lg transition-shadow"
                 >
-                  <h3 className="font-gaya text-lg">{category}</h3>
+                  <h3 className="font-gaya text-lg">
+                    {category.split(" & ").map((part, index) => (
+                      <span key={index}>
+                        {part}
+                        {index < category.split(" & ").length - 1 && (
+                          <span className="font-serif font-bold"> & </span>
+                        )}
+                      </span>
+                    ))}
+                  </h3>
                   <p className="font-matina text-sm text-gray-500 mt-1">Explore recipes</p>
                 </a>
               ),

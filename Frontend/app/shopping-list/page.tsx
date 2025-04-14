@@ -624,9 +624,7 @@ export default function ShoppingListPage() {
               </div>
 
               {loading ? (
-                <p className="font-matina text-center py-8">
-                  Loading recipes...
-                </p>
+                <p className="text-center w-full font-matina text-xl text-gray-500">Loading recipes...</p>
               ) : likedRecipes.length > 0 ? (
                 <div className="space-y-4">
                   {likedRecipes.map((recipe) => (
@@ -828,12 +826,12 @@ export default function ShoppingListPage() {
           <div className="mt-8 p-6 bg-white rounded-lg shadow-md w-full">
             <div className="text-center mb-6">
               <p className="font-matina text-lg">
-                The cheapest store for your shopping list is:
+                The cheapest store for your shopping list is likely
               </p>
               <p className="font-gaya text-3xl mt-2">{cheapestStore}</p>
               {storePrice && (
                 <p className="font-gaya text-4xl mt-1 text-[#32c94e]">
-                  ${storePrice.toFixed(2)}
+                  ${storePrice.toFixed(2)}+
                 </p>
               )}
             </div>
@@ -841,7 +839,7 @@ export default function ShoppingListPage() {
             {priceComparisons.length > 0 && (
               <div className="mt-4">
                 <h3 className="font-gaya text-2xl mb-4 text-center">
-                  Price Comparison
+                  Comparison of Priced Items
                 </h3>
                 <div className="flex flex-col md:flex-row md:gap-6">
                   {priceComparisons.map((comparison, index) => (
@@ -861,15 +859,15 @@ export default function ShoppingListPage() {
                       >
                         <div className="flex gap-2">
                           <p className="font-matina font-bold text-2xl">
-                            {comparison.store}
+                            {comparison.store} <span className="font-normal font-serif text-lg text-gray-600">({comparison.items.length} items)</span>
                           </p>
+                        </div>
+                        <div className="flex items-center gap-3">
                           {index === 0 && (
-                            <span className="flex items-center text-xs text-black font-gaya bg-[#ffdf00] px-2 pt-0.5 rounded-full text-center shadow-md border border-gray-300">
+                            <span className="flex items-center text-sm text-black font-gaya bg-[#ffdf00] px-2.5 pt-1.5 pb-1 rounded-full text-center shadow-md border border-gray-300">
                               Best Price
                             </span>
                           )}
-                        </div>
-                        <div className="flex items-center gap-3">
                           <p className="font-gaya font-bold text-3xl">
                             ${comparison.price.toFixed(2)}
                           </p>
@@ -952,15 +950,15 @@ export default function ShoppingListPage() {
             <div className="mt-4">
               <div className="rounded-md md:rounded-lg bg-gray-200 p-4 mb-2 shadow-sm">
                 <div className="flex gap-2">
-                  <p className="font-matina font-bold text-2xl text-gray-700">
-                    Missing Items
+                  <p className="font-matina font-bold text-2xl text-gray-800">
+                    Missing Items <span className="text-gray-600 font-normal font-serif text-lg">({failedItems.length} items)</span>
                   </p>
                 </div>
               </div>
               
               <div className="p-4 rounded-md md:rounded-lg bg-gray-50">
                 <ul className="space-y-0.5">
-                  {failedItems.slice(0, 3).map((item, index) => (
+                  {failedItems.map((item, index) => (
                     <li
                       key={index}
                       className="flex justify-between items-center p-1.5 rounded hover:bg-white/70 transition-colors"
@@ -990,15 +988,6 @@ export default function ShoppingListPage() {
                     </li>
                   ))}
                 </ul>
-
-                {/* Show count of additional items if more than 3 */}
-                {failedItems.length > 3 && (
-                  <div className="mt-2 text-center">
-                    {/* <p className="text-sm text-gray-500">
-                      +{failedItems.length - 3} more missing items
-                    </p> */}
-                  </div>
-                )}
               </div>
             </div>
           </div>

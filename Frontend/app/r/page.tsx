@@ -264,7 +264,7 @@ export default function RecipePage() {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="font-matina">Loading recipe...</p>
+        <p className="text-center w-full font-gaya text-4xl">Loading recipe...</p>
       </div>
     );
   }

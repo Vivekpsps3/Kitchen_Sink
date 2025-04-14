@@ -502,7 +502,7 @@ export default function SearchPage() {
         {/* Results */}
         {loading ? (
           <div className="text-center py-12">
-            <p className="font-matina text-lg">Loading recipes...</p>
+            <p className="text-center w-full font-gaya text-4xl">Loading recipes...</p>
           </div>
         ) : (
           <>
